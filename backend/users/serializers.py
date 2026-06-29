@@ -19,9 +19,25 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
+        extra_kwargs = {
+        'username': {'validators': []}  # Desactiva los validadores por defecto de Django
+        }
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                'Ya existe una cuenta registrada con este correo.'
+            )
+        return value
+
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError(
+                'Este nombre de usuario ya está en uso.'
+            )
+        return value
 
     def create(self, validated_data):
-        # create_user cifra la contraseña automáticamente
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
