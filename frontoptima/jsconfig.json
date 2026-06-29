@@ -3,7 +3,9 @@
     "target": "esnext",
     "module": "esnext",
     "baseUrl": "./",
-    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "moduleResolution": "node10",
+
     "paths": {
       "@/*": [
         "src/*"
