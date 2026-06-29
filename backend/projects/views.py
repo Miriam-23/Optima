@@ -1,0 +1,133 @@
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.utils import timezone
+from django.db.models import Count, Q
+from .models import Proyecto, ProyectoUsuario
+from .serializers import (
+    ProyectoReadSerializer, ProyectoWriteSerializer,
+    ProyectoUsuarioReadSerializer, ProyectoUsuarioWriteSerializer
+)
+from .filters import ProyectoUsuarioFilter
+from .permissions import ProyectoPermiso, ProyectoUsuarioPermiso
+
+class ProyectoViewSet(viewsets.ModelViewSet):
+    queryset = Proyecto.objects.all()
+    permission_classes = [ProyectoPermiso]
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return ProyectoReadSerializer
+        return ProyectoWriteSerializer
+    
+    def get_queryset(self):
+        # Cada usuario solo ve los proyectos donde está asignado
+        return Proyecto.objects.filter(
+            equipo__usuario=self.request.user
+        ).distinct()
+
+    @action(detail=True, methods=['get'], url_path='dashboard')
+    def dashboard(self, request, pk=None):
+        proyecto = self.get_object()
+        hoy = timezone.now().date()
+
+        tareas = proyecto.tareas.select_related('estado').prefetch_related('responsables__usuario')
+
+        # --- 1. AVANCE GENERAL DEL PROYECTO ---
+        total_tareas = tareas.count()
+        tareas_completadas = tareas.filter(estado__nombre='Hecho').count()
+        avance_porcentaje = round((tareas_completadas / total_tareas) * 100) if total_tareas > 0 else 0
+
+        # --- 2. TAREAS PENDIENTES ---
+        tareas_pendientes = tareas.exclude(estado__nombre='Hecho').count()
+
+        # --- 3. TAREAS VENCIDAS ---
+        # Vencida = fecha límite ya pasó Y no está completada
+        tareas_vencidas = tareas.filter(
+            fecha_limite__lt=hoy
+        ).exclude(estado__nombre='Hecho').count()
+
+        # --- 4. RIESGO DE RETRASO ---
+        # En riesgo = vence en los próximos 3 días, no está completada
+        en_3_dias = hoy + timezone.timedelta(days=3)
+        tareas_en_riesgo = tareas.filter(
+            fecha_limite__gte=hoy,
+            fecha_limite__lte=en_3_dias
+        ).exclude(estado__nombre='Hecho').count()
+
+        # --- 5. DISTRIBUCIÓN DE TAREAS POR ESTADO ---
+        distribucion_estados = list(
+            tareas.values('estado__nombre')
+            .annotate(total=Count('id'))
+            .order_by('estado__nombre')
+        )
+
+        # --- 6. CARGA DE TRABAJO Y DISTRIBUCIÓN POR INTEGRANTE ---
+        miembros = proyecto.equipo.select_related('usuario', 'rol')
+        carga_por_miembro = []
+
+        for miembro in miembros:
+            tareas_del_miembro = tareas.filter(responsables__usuario=miembro.usuario)
+            total_miembro = tareas_del_miembro.count()
+            completadas_miembro = tareas_del_miembro.filter(estado__nombre='Hecho').count()
+            vencidas_miembro = tareas_del_miembro.filter(
+                fecha_limite__lt=hoy
+            ).exclude(estado__nombre='Hecho').count()
+            esfuerzo_total = sum(
+                t.esfuerzo_estimado for t in tareas_del_miembro if t.esfuerzo_estimado
+            )
+
+            carga_por_miembro.append({
+                'usuario_id': miembro.usuario.id,
+                'nombre': miembro.usuario.username,
+                'email': miembro.usuario.email,
+                'rol': miembro.rol.nombre,
+                'total_tareas': total_miembro,
+                'tareas_completadas': completadas_miembro,
+                'tareas_vencidas': vencidas_miembro,
+                'esfuerzo_estimado_total': esfuerzo_total,  # Para la carga de trabajo visual
+            })
+
+        return Response({
+            'proyecto_id': proyecto.id,
+            'nombre': proyecto.nombre,
+            'estado_general': proyecto.estado_general,
+            'fecha_inicio': proyecto.fecha_inicio,
+            'fecha_fin': proyecto.fecha_fin,
+
+            # Avance
+            'avance': {
+                'total_tareas': total_tareas,
+                'completadas': tareas_completadas,
+                'porcentaje': avance_porcentaje,
+            },
+
+            # Semáforo de salud del proyecto
+            'alertas': {
+                'tareas_pendientes': tareas_pendientes,
+                'tareas_vencidas': tareas_vencidas,
+                'tareas_en_riesgo_retraso': tareas_en_riesgo,
+            },
+
+            # Para gráfica de distribución (pie chart / bar chart)
+            'distribucion_por_estado': distribucion_estados,
+
+            # Para tabla o tarjetas de carga por persona
+            'carga_por_miembro': carga_por_miembro,
+        })
+
+
+class ProyectoUsuarioViewSet(viewsets.ModelViewSet):
+    queryset = ProyectoUsuario.objects.select_related('usuario', 'proyecto', 'rol')
+    permission_classes = [ProyectoUsuarioPermiso]
+
+    def get_queryset(self):
+        # Solo ves el equipo de tus proyectos
+        return ProyectoUsuario.objects.filter(
+            proyecto__equipo__usuario=self.request.user
+        ).distinct()
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return ProyectoUsuarioReadSerializer
+        return ProyectoUsuarioWriteSerializer
