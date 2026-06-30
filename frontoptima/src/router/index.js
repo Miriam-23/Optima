@@ -18,7 +18,6 @@ const routes = [
     path: '/',
     redirect: '/login',
   },
-
   {
     path: '/',
     component: AuthLayout,
@@ -71,15 +70,33 @@ const router = createRouter({
   routes,
 })
 
+// router.beforeEach((to) => {
+//   const auth = useAuthStore()
+
+//   if (to.path !== '/login' && !auth.isAuthenticated) {
+//     return '/login'
+//   }
+
+//   if (to.path === '/login' && auth.isAuthenticated) {
+//     return '/dashboard'
+//   }
+// })
+
 router.beforeEach((to) => {
+
   const auth = useAuthStore()
 
-  if (to.path !== '/login' && !auth.isAuthenticated) {
+  const publicPages = ['/login', '/register']
+
+  const authRequired = !publicPages.includes(to.path)
+
+  if (authRequired && !auth.isAuthenticated) {
     return '/login'
   }
 
-  if (to.path === '/login' && auth.isAuthenticated) {
+  if (publicPages.includes(to.path) && auth.isAuthenticated) {
     return '/dashboard'
   }
+
 })
 export default router

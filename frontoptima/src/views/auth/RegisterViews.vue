@@ -38,7 +38,7 @@
           <!-- NOMBRE -->
           <v-text-field
             v-model="name"
-            label="Nombre o Usuario"
+            label="Usuario"
             prepend-inner-icon="mdi-account"
             variant="outlined"
           />
@@ -91,9 +91,10 @@
             block
             size="large"
             class="mt-4"
+            :loading="loading"
             @click="register"
           >
-            Crear cuenta
+            CREAR CUENTA
           </v-btn>
 
           <v-btn variant="text" 
@@ -114,11 +115,13 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import logoLight from '@/assets/images/logo_ligth.png'
-import logoDark from '@/assets/images/logo_dark.png'
 import Swal from 'sweetalert2'
 
 const router = useRouter()
+const authStore = useAuthStore()
+const loading = ref(false)
 
 const name = ref('')
 const email = ref('')
@@ -126,47 +129,66 @@ const password = ref('')
 const confirmPassword = ref('')
 const showPassword = ref(false)
 
-const register = () => {
+const register = async () => {
+
   if (!name.value || !email.value || !password.value || !confirmPassword.value) {
+
     Swal.fire({
-      title: 'Error!',
+      title: 'Error',
       text: 'Completa todos los campos',
       icon: 'error',
       background: 'rgba(0,0,0,0.6)',
       color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
-      showConfirmButton: false,
       timer: 1500,
-      timerProgressBar: false,
-      customClass: {
-        popup: 'swal2-glass'
-      }
+      showConfirmButton: false
     })
+
+    return
+  }
+
+  if (password.value.length < 8) {
+
+    Swal.fire({
+      title: 'Error',
+      text: 'La contraseña debe tener mínimo 8 caracteres',
+      icon: 'error',
+      background: 'rgba(0,0,0,0.6)',
+      color: '#fff',
+      timer: 1500,
+      showConfirmButton: false
+    })
+
     return
   }
 
   if (password.value !== confirmPassword.value) {
-    Swal.fire('Error', 'Las contraseñas no coinciden', 'error')
+
     Swal.fire({
-      title: 'Error!',
+      title: 'Error',
       text: 'Las contraseñas no coinciden',
       icon: 'error',
       background: 'rgba(0,0,0,0.6)',
       color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
-      showConfirmButton: false,
       timer: 1500,
-      timerProgressBar: false,
-      customClass: {
-        popup: 'swal2-glass'
-      }
+      showConfirmButton: false
     })
+
     return
   }
 
-  Swal.fire({
-      title: 'Exito!',
-      text: 'Registro exitoso',
+  loading.value = true
+
+  try {
+
+    await authStore.register({
+      username: name.value,
+      email: email.value,
+      password: password.value
+    })
+
+    Swal.fire({
+      title: 'Éxito',
+      text: 'Cuenta creada correctamente',
       icon: 'success',
       background: 'rgba(0,0,0,0.6)',
       color: '#fff',
@@ -179,7 +201,43 @@ const register = () => {
       }
     })
 
-  router.push('/dashboard') // o login
+    router.push('/dashboard')
+
+  } catch (error) {
+
+    let mensaje = 'No fue posible crear la cuenta'
+
+    if (error.response?.data) {
+
+      const data = error.response.data
+
+      if (typeof data === 'object') {
+        mensaje = Object.values(data).flat().join('\n')
+      }
+
+    }
+
+    Swal.fire({
+      title: 'Error',
+      text: mensaje,
+      icon: 'error',
+      background: 'rgba(0,0,0,0.6)',
+      color: '#fff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: false,
+      customClass: {
+        popup: 'swal2-glass'
+      }
+    })
+
+  } finally {
+
+    loading.value = false
+
+  }
+
 }
 </script>
 

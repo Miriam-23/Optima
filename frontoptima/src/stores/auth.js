@@ -14,10 +14,10 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
 
-    async login(email, password) {
+    async login(username, password) {
       try {
         const res = await api.post('/api/auth/login/', {
-          email,
+          username,
           password,
         })
 
@@ -30,12 +30,30 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('user', JSON.stringify(this.user))
 
         return true
-      } catch (error) {
-        console.error('Error login:', error)
-        return false
+      }
+      // } catch (error) {
+
+      //   console.error('Error login:', error)
+      //   return false
+        catch (error) {
+        console.log(error.response.data);
+    
       }
     },
 
+    // Registro
+    async register(data) {
+      await api.post('/api/auth/register/', {
+        username: data.username,
+        email: data.email,
+        password: data.password
+      })
+
+      // Login automático
+      await this.login(data.email, data.password)
+    },
+
+    //CIERRE DE SESION
     logout() {
       this.user = null
       this.access = null

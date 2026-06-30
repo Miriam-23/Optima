@@ -77,9 +77,11 @@
             Iniciar sesión
           </v-btn>
 
-          <v-btn variant="text" color="surface" @click="$router.push('/register')">
-            CREAR CUENTA
-          </v-btn>
+          <RouterLink to="/register">
+            <v-btn variant="text" color="surface">
+              CREAR CUENTA
+            </v-btn>
+          </RouterLink>
 
           <v-btn variant="text" color="surface">
             ¿Olvidaste tu contraseña?
