@@ -2,12 +2,20 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Rol  # Importamos también Rol ya que vive en esta app
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+import hashlib
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
         # Solo exponemos datos públicos e inofensivos
-        fields = ['id', 'username', 'email', 'is_active', 'date_joined']
+        fields = ['id', 'username', 'email', 'is_active', 'date_joined', 'avatar_url']
+    
+    def get_avatar_url(self, obj):
+        email = obj.email.lower().strip() if obj.email else ''
+        hash_email = hashlib.md5(email.encode()).hexdigest()
+        return f'https://www.gravatar.com/avatar/{hash_email}?d=identicon&s=200'
 
 class RolSerializer(serializers.ModelSerializer):
     class Meta:

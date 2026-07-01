@@ -6,40 +6,64 @@ from .serializers import (
 )
 from .filters import TareaFilter, ComentarioFilter
 from .permissions import TareaPermiso, ComentarioPermiso
+from notifications.utils import notificar_miembro, notificar_project_managers
 
 class TareaViewSet(viewsets.ModelViewSet):
-    permission_classes = [TareaPermiso] 
-    filterset_class = TareaFilter  # Filtros
+    permission_classes = [TareaPermiso]
+    filterset_class = TareaFilter
 
     def get_queryset(self):
-        # Solo ves tareas de tus proyectos
         return Tarea.objects.filter(
             proyecto__equipo__usuario=self.request.user
         ).select_related('proyecto', 'estado').prefetch_related('responsables__usuario').distinct()
 
-    # Django llama a este método antes de cada request para elegir el serializer correcto
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
-            return TareaReadSerializer   # GET → datos ricos
-        return TareaWriteSerializer      # POST, PUT, PATCH → solo IDs
+            return TareaReadSerializer
+        return TareaWriteSerializer
+
+    def perform_create(self, serializer):
+        tarea = serializer.save()
+        notificar_project_managers(
+            proyecto=tarea.proyecto,
+            tipo='tarea_asignada',
+            mensaje=f'Se creó la tarea "{tarea.titulo}" en el proyecto {tarea.proyecto.nombre}.'
+        )
 
 class AsignacionTareaViewSet(viewsets.ModelViewSet):
     queryset = TareaUsuario.objects.all()
     serializer_class = AsignacionTareaSerializer
 
+    def perform_create(self, serializer):
+        asignacion = serializer.save()
+        notificar_miembro(
+            usuario=asignacion.usuario,
+            tipo='tarea_asignada',
+            mensaje=f'Se te asignó la tarea "{asignacion.tarea.titulo}".'
+        )
+        notificar_project_managers(
+            proyecto=asignacion.tarea.proyecto,
+            tipo='tarea_asignada',
+            mensaje=f'{asignacion.usuario.username} fue asignado a "{asignacion.tarea.titulo}".'
+        )
+
 class ComentarioViewSet(viewsets.ModelViewSet):
-    permission_classes = [ComentarioPermiso] 
-    filterset_class = ComentarioFilter  # Filtros
+    permission_classes = [ComentarioPermiso]
+    filterset_class = ComentarioFilter
     serializer_class = ComentarioSerializer
-    
+
     def get_queryset(self):
         return Comentario.objects.filter(
             tarea__proyecto__equipo__usuario=self.request.user
         ).select_related('usuario').distinct()
-    
+
     def perform_create(self, serializer):
-        # Tomamos el usuario del token, no del body
-        serializer.save(usuario=self.request.user)
+        comentario = serializer.save(usuario=self.request.user)
+        notificar_project_managers(
+            proyecto=comentario.tarea.proyecto,
+            tipo='comentario_nuevo',
+            mensaje=f'{self.request.user.username} comentó en "{comentario.tarea.titulo}".'
+        )
 
 class EstadoViewSet(mixins.ListModelMixin,
                     mixins.RetrieveModelMixin,

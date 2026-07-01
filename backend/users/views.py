@@ -11,6 +11,20 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import LoginSerializer
 
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+    
+    def patch(self, request):
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+    
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.filter(is_active=True) # Solo enviamos usuarios activos
     serializer_class = UserSerializer
