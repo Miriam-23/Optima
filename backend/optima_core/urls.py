@@ -15,8 +15,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from users.views import LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Aquí conectamos las APIS. Todas sus rutas empezarán con /api/
+    path('api/', include('projects.urls')),
+    path('api/', include('tasks.urls')),
+    path('api/', include('users.urls')), # Habilitar Usuarios y Roles
+    path('api/', include('notifications.urls')),
+
+    # Endpoints JWT
+    #path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/login/', LoginView.as_view(), name='login'),
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
