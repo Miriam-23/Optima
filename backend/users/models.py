@@ -1,6 +1,8 @@
 from django.db import models
-# Importaremos el User estándar de Django más adelante cuando armemos las relaciones
-# from django.contrib.auth.models import User 
+import uuid
+from django.utils import timezone
+from datetime import timedelta
+from django.contrib.auth.models import User
 
 # CATÁLOGO DE ROLES
 class Rol(models.Model):
@@ -16,3 +18,13 @@ class Rol(models.Model):
     def __str__(self):
         return self.nombre
 
+class TokenVerificacion(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='token_verificacion')
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    def ha_expirado(self):
+        return timezone.now() > self.creado_en + timedelta(hours=24)
+
+    class Meta:
+        db_table = 'tokens_verificacion'

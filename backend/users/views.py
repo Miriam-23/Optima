@@ -54,3 +54,35 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
+
+from .models import TokenVerificacion
+from django.contrib.auth.models import User
+
+class VerificarCorreoView(APIView):
+    permission_classes = []  # No requiere token
+
+    def get(self, request, token):
+        try:
+            token_obj = TokenVerificacion.objects.select_related('usuario').get(token=token)
+        except TokenVerificacion.DoesNotExist:
+            return Response(
+                {'error': 'Enlace de verificación inválido.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if token_obj.ha_expirado():
+            token_obj.delete()
+            return Response(
+                {'error': 'El enlace ha expirado. Regístrate nuevamente.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        usuario = token_obj.usuario
+        usuario.is_active = True
+        usuario.save()
+        token_obj.delete()  # El token ya no sirve después de usarse
+
+        return Response(
+            {'mensaje': f'Cuenta de {usuario.username} verificada correctamente. Ya puedes iniciar sesión.'},
+            status=status.HTTP_200_OK
+        )

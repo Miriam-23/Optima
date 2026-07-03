@@ -59,10 +59,25 @@ class ComentarioViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         comentario = serializer.save(usuario=self.request.user)
+        tarea = comentario.tarea
+        proyecto = tarea.proyecto
+        mensaje = f'{self.request.user.username} comentó en "{tarea.titulo}".'
+        
+        # Notificar a los responsables de la tarea
+        for responsable in tarea.responsables.select_related('usuario'):
+            if responsable.usuario != self.request.user:  # No te notificas a ti mismo
+                notificar_miembro(
+                    usuario=responsable.usuario,
+                    tipo='comentario_nuevo',
+                    mensaje=mensaje
+                )
+
+        # Notificar al PM si no es quien comentó
         notificar_project_managers(
-            proyecto=comentario.tarea.proyecto,
+            proyecto=proyecto,
             tipo='comentario_nuevo',
-            mensaje=f'{self.request.user.username} comentó en "{comentario.tarea.titulo}".'
+            mensaje=mensaje,
+            excluir_usuario=self.request.user
         )
 
 class EstadoViewSet(mixins.ListModelMixin,
