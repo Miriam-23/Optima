@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from .models import Rol  # Importamos también Rol ya que vive en esta app
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import hashlib
+from .models import TokenVerificacion
+from notifications.emails import enviar_correo_verificacion
 
 class UserSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
@@ -47,11 +49,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        # Cuenta inactiva hasta verificar correo
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            is_active=False  # ← no puede loguearse aún
         )
+        # Crear token de verificación
+        token = TokenVerificacion.objects.create(usuario=user)
+        # Enviar correo
+        enviar_correo_verificacion(user, token.token)
         return user
     
 class LoginSerializer(TokenObtainPairSerializer):
