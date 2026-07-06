@@ -8,22 +8,15 @@ export const useProyectosStore = defineStore('proyectos', {
     error: null
   }),
   getters: {
+      proyectosPlanificados: (state) => 
+        state.proyectos.filter(p => p.estado_general === 'Planificacion'),
 
-    total: (state) => state.proyectos.length,
-
-    activos: (state) =>
-      state.proyectos.filter(p => p.estado_general === 'Planificacion'),
-
-    activos: (state) =>
-    state.proyectos.filter( p => p.estado_general === 'En progreso'),
-
-    pausados: (state) =>
-    state.proyectos.filter( p => p.estado_general === 'Pausado'),
-
-    completado: (state) =>
-    state.proyectos.filter( p => p.estado_general === 'Completado'),
-
-  },
+      proyectosEnProgreso: (state) => 
+        state.proyectos.filter(p => p.estado_general === 'En progreso'),
+        
+      pausados: (state) => state.proyectos.filter(p => p.estado_general === 'Pausado'),
+      completados: (state) => state.proyectos.filter(p => p.estado_general === 'Completado'),
+    },
   actions: {
 
     async obtenerProyectos() {
@@ -50,12 +43,23 @@ export const useProyectosStore = defineStore('proyectos', {
       this.proyectos.push(response.data)
     },
 
-    async actualizarProyecto(id,data){
-      const response = await projectService.update(id,data)
-      const index = this.proyectos.findIndex(p=>p.id===id)
+async actualizarProyecto(id, data) {
+      try {
+        const response = await projectService.update(id, data)
+        const index = this.proyectos.findIndex(p => p.id === id)
 
-      if(index!=-1){
-        this.proyectos[index]=response.data
+        if (index !== -1) {
+          // Fusionamos el proyecto existente con los nuevos datos, 
+          // asegurando que el ID nunca se sobrescriba con "undefined"
+          this.proyectos[index] = { 
+            ...this.proyectos[index], 
+            ...response.data, 
+            id: id 
+          }
+        }
+      } catch (error) {
+        console.error("Error al actualizar en el store:", error)
+        throw error // Para que el componente sepa que falló
       }
     },
 

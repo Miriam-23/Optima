@@ -49,25 +49,29 @@
 <script setup>
 import { computed } from 'vue'
 
+// 1. Declaramos que ahora recibimos la data real desde el componente padre
 const props = defineProps({
   projectId: {
-    type: Number,
+    type: [Number, String], // Aceptamos String también por si la URL lo manda como texto
     required: true
+  },
+  dashboardData: {
+    type: Object,
+    default: () => ({})
   }
 })
 
-/**
- * 🔥 MOCK temporal
- * Después esto vendrá de /api/tasks?project=id
- */
+// 2. Mapeamos los datos de la API de Django a las variables que usa el diseño visual
 const kpis = computed(() => {
-
-  // Simulación realista
+  const data = props.dashboardData || {}
+  const avance = data.avance || {}
+  const alertas = data.alertas || {}
+  
   return {
-    total: 12,
-    done: 6,
-    doing: 4,
-    todo: 2
+    total: avance.total_tareas || 0,
+    done: avance.completadas || 0,
+    doing: data.distribucion_por_estado?.find(e => e.estado__nombre === 'En progreso')?.total || 0,
+    todo: alertas.tareas_pendientes || 0
   }
 })
 </script>

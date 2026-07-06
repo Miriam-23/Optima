@@ -3,26 +3,16 @@
 
     <!-- HEADER -->
     <div class="d-flex justify-space-between align-center mb-3">
-
       <h3>Últimas tareas</h3>
-
-      <v-btn
-        size="small"
-        variant="text"
-        color="primary"
-      >
+      <!-- Aquí podrías poner un router-link hacia la vista completa de tareas después -->
+      <v-btn size="small" variant="text" color="primary">
         Ver todas
       </v-btn>
-
     </div>
 
     <!-- LISTA -->
     <v-list v-if="tareas.length">
-
-      <v-list-item
-        v-for="t in tareas"
-        :key="t.id"
-      >
+      <v-list-item v-for="t in tareas" :key="t.id">
 
         <!-- ICONO SEGÚN ESTADO -->
         <template #prepend>
@@ -32,36 +22,28 @@
         </template>
 
         <!-- TITULO -->
-        <v-list-item-title>
+        <v-list-item-title class="font-weight-bold">
           {{ t.titulo }}
         </v-list-item-title>
 
         <!-- SUBTITULO -->
         <v-list-item-subtitle>
-          {{ t.descripcion }}
+          {{ t.descripcion || 'Sin descripción' }}
         </v-list-item-subtitle>
 
         <!-- ESTADO -->
         <template #append>
-          <v-chip
-            size="small"
-            :color="estadoColor(t.estado)"
-          >
+          <v-chip size="small" :color="estadoColor(t.estado)" class="text-capitalize">
             {{ t.estado }}
           </v-chip>
         </template>
 
       </v-list-item>
-
     </v-list>
 
-    <!-- EMPTY -->
-    <v-alert
-      v-else
-      type="info"
-      class="mt-3"
-    >
-      No hay tareas registradas
+    <!-- EMPTY STATE -->
+    <v-alert v-else type="info" class="mt-3" variant="tonal">
+      No hay tareas registradas en este proyecto.
     </v-alert>
 
   </v-card>
@@ -72,62 +54,37 @@ import { computed } from 'vue'
 
 const props = defineProps({
   projectId: {
-    type: Number,
+    type: [Number, String],
     required: true
+  },
+  // 1. Recibimos la lista real desde tu API
+  tareasData: {
+    type: Array,
+    default: () => []
   }
 })
 
-/**
- * 🔥 MOCK temporal
- * Luego conectaremos a:
- * GET /api/tasks/?project=ID
- */
-const tareas = computed(() => [
-  {
-    id: 1,
-    titulo: 'Login del sistema',
-    descripcion: 'Crear autenticación con JWT',
-    estado: 'done'
-  },
-  {
-    id: 2,
-    titulo: 'Dashboard',
-    descripcion: 'Diseñar KPIs principales',
-    estado: 'doing'
-  },
-  {
-    id: 3,
-    titulo: 'API Usuarios',
-    descripcion: 'Conectar backend usuarios',
-    estado: 'todo'
-  }
-])
+// 2. Mapeamos las tareas. Usamos slice(0, 5) por si Django te manda 50, 
+// no romper el diseño de esta tarjeta resumen.
+const tareas = computed(() => {
+  return (props.tareasData || []).slice(0, 5)
+})
 
-/* ICONOS */
+/* ICONOS (A prueba de balas: Inglés o Español) */
 const estadoIcon = (estado) => {
-  switch (estado) {
-    case 'done':
-      return 'mdi-check-circle'
-    case 'doing':
-      return 'mdi-progress-clock'
-    case 'todo':
-      return 'mdi-circle-outline'
-    default:
-      return 'mdi-help-circle'
-  }
+  const e = estado ? estado.toString().toLowerCase() : ''
+  if (e.includes('done') || e.includes('completado')) return 'mdi-check-circle'
+  if (e.includes('doing') || e.includes('progreso')) return 'mdi-progress-clock'
+  if (e.includes('todo') || e.includes('pendiente')) return 'mdi-circle-outline'
+  return 'mdi-help-circle'
 }
 
-/* COLORES */
+/* COLORES (A prueba de balas: Inglés o Español) */
 const estadoColor = (estado) => {
-  switch (estado) {
-    case 'done':
-      return 'green'
-    case 'doing':
-      return 'orange'
-    case 'todo':
-      return 'red'
-    default:
-      return 'grey'
-  }
+  const e = estado ? estado.toString().toLowerCase() : ''
+  if (e.includes('done') || e.includes('completado')) return 'success' // Usamos variables de Vuetify
+  if (e.includes('doing') || e.includes('progreso')) return 'warning'
+  if (e.includes('todo') || e.includes('pendiente')) return 'error'
+  return 'grey'
 }
 </script>

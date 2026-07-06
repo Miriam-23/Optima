@@ -58,13 +58,11 @@ class ProyectoViewSet(viewsets.ModelViewSet):
         tareas_pendientes = tareas.exclude(estado__nombre='Hecho').count()
 
         # --- 3. TAREAS VENCIDAS ---
-        # Vencida = fecha límite ya pasó Y no está completada
         tareas_vencidas = tareas.filter(
             fecha_limite__lt=hoy
         ).exclude(estado__nombre='Hecho').count()
 
         # --- 4. RIESGO DE RETRASO ---
-        # En riesgo = vence en los próximos 3 días, no está completada
         en_3_dias = hoy + timezone.timedelta(days=3)
         tareas_en_riesgo = tareas.filter(
             fecha_limite__gte=hoy,
@@ -94,6 +92,7 @@ class ProyectoViewSet(viewsets.ModelViewSet):
             )
 
             carga_por_miembro.append({
+                'id_asignacion': miembro.id,  # SOLUCIÓN AL 404: El ID real de la relación
                 'usuario_id': miembro.usuario.id,
                 'nombre': miembro.usuario.username,
                 'email': miembro.usuario.email,
@@ -101,8 +100,20 @@ class ProyectoViewSet(viewsets.ModelViewSet):
                 'total_tareas': total_miembro,
                 'tareas_completadas': completadas_miembro,
                 'tareas_vencidas': vencidas_miembro,
-                'esfuerzo_estimado_total': esfuerzo_total,  # Para la carga de trabajo visual
+                'esfuerzo_estimado_total': esfuerzo_total,
             })
+            
+        # --- 7. ÚLTIMAS TAREAS (Para poblar la lista del frontend) ---
+        # Ordenamos por fecha de creación descendente y tomamos las últimas 5
+        ultimas_tareas_queryset = tareas.order_by('-fecha_creacion')[:5] 
+        ultimas_tareas = [
+            {
+                'id': t.id,
+                'titulo': t.titulo,
+                'descripcion': getattr(t, 'descripcion', ''), # Por si no tienen descripción
+                'estado': t.estado.nombre if t.estado else 'Sin estado'
+            } for t in ultimas_tareas_queryset
+        ]
 
         return Response({
             'proyecto_id': proyecto.id,
@@ -111,25 +122,22 @@ class ProyectoViewSet(viewsets.ModelViewSet):
             'fecha_inicio': proyecto.fecha_inicio,
             'fecha_fin': proyecto.fecha_fin,
 
-            # Avance
             'avance': {
                 'total_tareas': total_tareas,
                 'completadas': tareas_completadas,
                 'porcentaje': avance_porcentaje,
             },
 
-            # Semáforo de salud del proyecto
             'alertas': {
                 'tareas_pendientes': tareas_pendientes,
                 'tareas_vencidas': tareas_vencidas,
                 'tareas_en_riesgo_retraso': tareas_en_riesgo,
             },
 
-            # Para gráfica de distribución (pie chart / bar chart)
             'distribucion_por_estado': distribucion_estados,
-
-            # Para tabla o tarjetas de carga por persona
             'carga_por_miembro': carga_por_miembro,
+            
+            'tareas': ultimas_tareas, # 🚀 NUEVO: Entregamos las tareas al frontend
         })
 
 class ProyectoUsuarioViewSet(viewsets.ModelViewSet):

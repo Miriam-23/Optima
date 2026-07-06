@@ -10,6 +10,11 @@ export default {
     return api.get(`/api/projects/${id}/`)
   },
 
+  // Endpoint maestro para el Dashboard Operativo del proyecto
+  getDashboard(id) {
+    return api.get(`/api/projects/${id}/dashboard/`)
+  },
+
   create(data) {
     return api.post('/api/projects/', data)
   },

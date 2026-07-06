@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/', include('tasks.urls')),
     path('api/', include('users.urls')), # Habilitar Usuarios y Roles
     path('api/', include('notifications.urls')),
+    path('api/', include('reports.urls')),
 
     # Endpoints JWT
     #path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
