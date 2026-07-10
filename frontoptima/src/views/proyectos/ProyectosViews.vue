@@ -79,11 +79,27 @@
 
     <!-- DIALOG -->
     <v-dialog v-model="dialog" max-width="500">
-      <v-card class="pa-4">
+      <v-card class="pa-4" style="overflow: visible;">
 
         <h3 class="mb-4">
           {{ editMode ? 'Editar proyecto' : 'Nuevo proyecto' }}
         </h3>
+
+        <!-- Errores para la UI -->
+        <v-alert
+          v-if="errorGuardado"
+          type="error"
+          variant="tonal"
+          border="start"
+          icon="mdi-alert-circle-outline"
+          closable
+          class="mb-4"
+          @click:close="errorGuardado = null"
+        >
+          <div style="white-space: normal; word-break: break-word; line-height: 1.4;">
+            {{ errorGuardado }}
+          </div>
+        </v-alert>
 
         <v-text-field
           v-model="form.nombre"
@@ -122,6 +138,8 @@
           color="accent"
           block
           class="mt-4"
+          :loading="guardando"
+          :disabled="guardando"
           @click="guardar"
         >
           Guardar
@@ -194,14 +212,33 @@ const proyectosFiltrados = computed(() => {
 })
 
 // FUNCION GUARDAR PROYECTO
+const guardando = ref(false)
+const errorGuardado = ref(null)
+
 const guardar = async () => {
-  if (editMode.value) {
-    await store.actualizarProyecto(editId.value, form)
-  } else {
-    await store.crearProyecto(form)
+  if (form.fecha_inicio && form.fecha_fin && form.fecha_fin < form.fecha_inicio) {
+    errorGuardado.value = 'La fecha de fin no puede ser anterior a la fecha de inicio.'
+    return
   }
 
-  limpiar()
+  guardando.value = true
+  errorGuardado.value = null
+
+  try {
+    if (editMode.value) {
+      await store.actualizarProyecto(editId.value, form)
+    } else {
+      await store.crearProyecto(form)
+    }
+    limpiar()
+  } catch (err) {
+    errorGuardado.value = err.response?.data?.fecha_fin?.[0]
+      || err.response?.data?.detail
+      || Object.values(err.response?.data || {}).flat().join(' ')
+      || 'No se pudo guardar el proyecto.'
+  } finally {
+    guardando.value = false
+  }
 }
 
 // FUNCION EDITAR PROYECTO
@@ -292,6 +329,7 @@ const limpiar = () => {
   editMode.value = false
   editId.value = null
   dialog.value = false
+  errorGuardado.value = null 
 }
 
 // FUNCION DE ESTADO POR COLOR
