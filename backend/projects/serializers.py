@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from .models import Proyecto, ProyectoUsuario
 
 # --- PROYECTO LECTURA (GET) ---
@@ -15,9 +16,10 @@ class ProyectoWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proyecto
         fields = [
-            'nombre', 'descripcion',
+            'id', 'nombre', 'descripcion',
             'fecha_inicio', 'fecha_fin', 'estado_general'
         ]
+        read_only_fields = ['id']
     
     def validate(self, data):
         fecha_inicio = data.get('fecha_inicio')
@@ -55,18 +57,16 @@ class ProyectoUsuarioReadSerializer(serializers.ModelSerializer):
 
 # --- MIEMBRO DE PROYECTO ESCRITURA (POST / PUT / PATCH) ---
 class ProyectoUsuarioWriteSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = ProyectoUsuario
-        fields = ['usuario', 'proyecto', 'rol']
-    
-    def validate(self, data):
-        # unique_together ya lo maneja el modelo, pero este mensaje es más claro para el frontend
-        usuario = data.get('usuario')
-        proyecto = data.get('proyecto')
-        rol = data.get('rol')
+        fields = ['id', 'usuario', 'proyecto', 'rol']
+        read_only_fields = ['id']
 
-        if ProyectoUsuario.objects.filter(usuario=usuario, proyecto=proyecto, rol=rol).exists():
-            raise serializers.ValidationError(
-                'Este usuario ya tiene ese rol asignado en el proyecto.'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ProyectoUsuario.objects.all(),
+                fields=['usuario', 'proyecto', 'rol'],
+                message='Este usuario ya tiene ese rol asignado en el proyecto.'
             )
-        return data
+        ]
