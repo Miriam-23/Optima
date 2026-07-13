@@ -4,7 +4,7 @@ from projects.models import Proyecto  # Importamos Proyecto para la llave forán
 
 # CATÁLOGO DE ESTADOS
 class Estado(models.Model):
-    # Permite estados dinámicos como 'Pendiente', 'En progreso', 'Bloqueado', 'Hecho'
+    # Permite estados dinámicos como 'Pendiente', 'En progreso', 'Bloqueado', 'Completado'
     nombre = models.CharField(max_length=50, unique=True)
 
     class Meta:

@@ -33,14 +33,14 @@ class ReporteView(APIView):
         ).select_related('estado', 'proyecto')
 
         total_tareas = mis_tareas.count()
-        completadas = mis_tareas.filter(estado__nombre='Hecho').count()
+        completadas = mis_tareas.filter(estado__nombre='Completado').count()
         en_progreso = mis_tareas.filter(estado__nombre='En progreso').count()
         pendientes = mis_tareas.exclude(
-            estado__nombre__in=['Hecho', 'En progreso']
+            estado__nombre__in=['Completado', 'En progreso']
         ).count()
         vencidas = mis_tareas.filter(
             fecha_limite__lt=hoy
-        ).exclude(estado__nombre='Hecho')
+        ).exclude(estado__nombre='Completado')
 
         # Carga por proyecto
         carga_por_proyecto = []
@@ -49,12 +49,12 @@ class ReporteView(APIView):
             carga_por_proyecto.append({
                 'proyecto': proyecto.nombre,
                 'total': tareas_proyecto.count(),
-                'completadas': tareas_proyecto.filter(estado__nombre='Hecho').count(),
+                'completadas': tareas_proyecto.filter(estado__nombre='Completado').count(),
             })
 
         # Tareas críticas — vencidas o de alta prioridad sin completar
         tareas_criticas = list(
-            mis_tareas.exclude(estado__nombre='Hecho')
+            mis_tareas.exclude(estado__nombre='Completado')
             .filter(prioridad='Alta')
             .order_by('fecha_limite')
             .values('id', 'titulo', 'fecha_limite', 'prioridad', 'proyecto__nombre')[:5]
@@ -92,21 +92,21 @@ class ReporteView(APIView):
         ).select_related('estado', 'proyecto')
 
         total_tareas = todas_tareas.count()
-        completadas = todas_tareas.filter(estado__nombre='Hecho').count()
+        completadas = todas_tareas.filter(estado__nombre='Completado').count()
         en_progreso = todas_tareas.filter(estado__nombre='En progreso').count()
         pendientes = todas_tareas.exclude(
-            estado__nombre__in=['Hecho', 'En progreso']
+            estado__nombre__in=['Completado', 'En progreso']
         ).count()
         vencidas = todas_tareas.filter(
             fecha_limite__lt=hoy
-        ).exclude(estado__nombre='Hecho').count()
+        ).exclude(estado__nombre='Completado').count()
 
         # Avance comparativo por proyecto para gráfica de barras
         avance_proyectos = []
         for proyecto in proyectos:
             tareas_p = todas_tareas.filter(proyecto=proyecto)
             total_p = tareas_p.count()
-            completadas_p = tareas_p.filter(estado__nombre='Hecho').count()
+            completadas_p = tareas_p.filter(estado__nombre='Completado').count()
             avance_proyectos.append({
                 'proyecto': proyecto.nombre,
                 'total': total_p,
@@ -116,7 +116,7 @@ class ReporteView(APIView):
 
         # Fuegos por apagar — tareas vencidas o de alta prioridad
         fuegos = list(
-            todas_tareas.exclude(estado__nombre='Hecho')
+            todas_tareas.exclude(estado__nombre='Completado')
             .filter(prioridad='Alta')
             .order_by('fecha_limite')
             .values('id', 'titulo', 'fecha_limite', 'prioridad', 'proyecto__nombre')[:5]

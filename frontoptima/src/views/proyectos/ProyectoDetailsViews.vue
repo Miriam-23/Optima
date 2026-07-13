@@ -129,6 +129,7 @@ const fetchDashboard = async () => {
 
   try {
     const res = await projectService.getDashboard(projectId)
+    console.log(res.data)
     projectDashboard.value = res.data
   } catch (err) {
     error.value = err.response?.data?.message || 'Error al cargar las métricas del proyecto'

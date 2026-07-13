@@ -51,23 +51,23 @@ class ProyectoViewSet(viewsets.ModelViewSet):
 
         # --- 1. AVANCE GENERAL DEL PROYECTO ---
         total_tareas = tareas.count()
-        tareas_completadas = tareas.filter(estado__nombre='Hecho').count()
+        tareas_completadas = tareas.filter(estado__nombre='Completado').count()
         avance_porcentaje = round((tareas_completadas / total_tareas) * 100) if total_tareas > 0 else 0
 
         # --- 2. TAREAS PENDIENTES ---
-        tareas_pendientes = tareas.exclude(estado__nombre='Hecho').count()
+        tareas_pendientes = tareas.exclude(estado__nombre='Completado').count()
 
         # --- 3. TAREAS VENCIDAS ---
         tareas_vencidas = tareas.filter(
             fecha_limite__lt=hoy
-        ).exclude(estado__nombre='Hecho').count()
+        ).exclude(estado__nombre='Completado').count()
 
         # --- 4. RIESGO DE RETRASO ---
         en_3_dias = hoy + timezone.timedelta(days=3)
         tareas_en_riesgo = tareas.filter(
             fecha_limite__gte=hoy,
             fecha_limite__lte=en_3_dias
-        ).exclude(estado__nombre='Hecho').count()
+        ).exclude(estado__nombre='Completado').count()
 
         # --- 5. DISTRIBUCIÓN DE TAREAS POR ESTADO ---
         distribucion_estados = list(
@@ -83,10 +83,10 @@ class ProyectoViewSet(viewsets.ModelViewSet):
         for miembro in miembros:
             tareas_del_miembro = tareas.filter(responsables__usuario=miembro.usuario)
             total_miembro = tareas_del_miembro.count()
-            completadas_miembro = tareas_del_miembro.filter(estado__nombre='Hecho').count()
+            completadas_miembro = tareas_del_miembro.filter(estado__nombre='Completado').count()
             vencidas_miembro = tareas_del_miembro.filter(
                 fecha_limite__lt=hoy
-            ).exclude(estado__nombre='Hecho').count()
+            ).exclude(estado__nombre='Completado').count()
             esfuerzo_total = sum(
                 t.esfuerzo_estimado for t in tareas_del_miembro if t.esfuerzo_estimado
             )

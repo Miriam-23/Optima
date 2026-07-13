@@ -47,6 +47,7 @@
             <v-btn 
               size="small"
               color="accent"
+              variant="tonal"
               @click="abrirProyecto(p.id)">
               <v-icon>mdi-eye-outline</v-icon>
             </v-btn>
@@ -56,6 +57,7 @@
               <v-btn
                 size="small"
                 color="warning"
+                variant="tonal"
                 @click="editar(p)"
               >
                 <v-icon>mdi-pencil-outline</v-icon>
@@ -65,12 +67,14 @@
               <v-btn
                 size="small"
                 color="red"
-                 @click="confirmarEliminar(p.id)"
+                variant="tonal"
+                @click="confirmarEliminar(p.id)"
               >
                 <v-icon>mdi-delete-outline</v-icon>
               </v-btn>
 
             </template>
+
 
           </div>
         </v-card>
@@ -118,14 +122,26 @@
           label="Estado"
         />
 
-        <v-btn
-          color="accent"
-          block
-          class="mt-4"
-          @click="guardar"
-        >
-          Guardar
-        </v-btn>
+        <!-- ACTIONS -->
+        <v-card-actions>
+          <v-spacer />
+
+          <v-btn
+            color="accent"
+            class="mt-4"
+            @click="guardar"
+          >
+            Guardar
+          </v-btn>
+
+          <v-btn
+            color="error"
+            class="mt-4"
+            @click="close"
+          >
+            Cancelar
+          </v-btn>
+        </v-card-actions>
 
       </v-card>
     </v-dialog>
@@ -218,6 +234,7 @@ const editar = (p) => {
   dialog.value = true
 }
 
+// ELIMINAR
 const confirmarEliminar = async (id) => {
 
   const result = await Swal.fire({
@@ -294,6 +311,11 @@ const limpiar = () => {
   dialog.value = false
 }
 
+// CERRAR DIALOG
+const close = () => {
+  limpiar()
+}
+
 // FUNCION DE ESTADO POR COLOR
 const estadoColor = (estado) => {
   switch (estado) {
@@ -304,10 +326,6 @@ const estadoColor = (estado) => {
     default: return 'grey'
   }
 }
-
-// onMounted(() => {
-//   store.obtenerProyectos()
-// })
 
 // PRUEBA
 onMounted(async () => {

@@ -73,6 +73,7 @@ import { computed, ref } from 'vue'
 import teamService from '@/services/team.service'
 import DialogAsignarMiembro from './DialogAsignarMiembro.vue'
 import { useAuthStore } from '@/stores/auth'
+import Swal from 'sweetalert2'
 
 const authStore = useAuthStore()
 
@@ -106,22 +107,65 @@ const esProjectManager = computed(() => {
 })
 
 // 4. Eliminación de miembros
-const eliminar = async (id) => {
-  // Aquí podrías agregar un confirm() de JS rápido para evitar clics accidentales
-  if(!confirm('¿Estás seguro de quitar a este miembro del proyecto?')) return
+const eliminar = async (idAsignacion) => {
+  
+  // Buscar el miembro que se va a eliminar
+  const miembro = miembros.value.find(m => m.id_asignacion === idAsignacion)
+
+  const result = await Swal.fire({
+    title: `¿Deseas eliminar a  <strong>${miembro?.nombre}</strong> del Proyecto?`,
+    html: `Esta acción eliminará a <strong>${miembro?.nombre}</strong> del equipo.`,
+    icon: 'warning',
+    background: 'rgba(13, 194, 211,0.6)',
+    color: '#fff',
+    backdrop: 'rgba(0,0,0,0.4)',
+    showCancelButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: 'success',
+    cancelButtonColor: 'error',
+    confirmButtonColor: '#d32f2f', // Rojo
+    cancelButtonColor: '#1976D2',
+    customClass: {
+      popup: 'swal2-glass'
+    }
+  })
+
+  if (!result.isConfirmed) return
 
   try {
-    // Le pegamos al endpoint DELETE que armó Miri
-    await teamService.remove(id)
-    
+    await teamService.remove(idAsignacion)
+
+    Swal.fire({
+      title: `<strong>${miembro?.nombre}</strong> eliminado.`,
+      html: `<strong>${miembro?.nombre}</strong> ha sido removido del equipo.`,
+      icon: 'success',
+      background: 'rgba(0,0,0,0.6)',
+      color: '#fff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: false,
+      customClass: {
+        popup: 'swal2-glass'
+      }
+    })
+
     // Disparamos el evento para que el Dashboard maestro (padre) recargue TODA la info
     onMiembroModificado()
+
   } catch (err) {
     console.error('Error al eliminar miembro', err)
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo eliminar al miembro del equipo.',
+      icon: 'error'
+    })
   }
 }
 
 // 5. Centralizamos la recarga
+
 const onMiembroModificado = () => {
   dialog.value = false
   emit('refresh') // Le grita al padre: "¡Oye, alguien fue agregado/eliminado, vuelve a llamar a la API!"

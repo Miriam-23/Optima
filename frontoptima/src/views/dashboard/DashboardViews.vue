@@ -121,6 +121,7 @@ const reportData = ref(null)
 onMounted(async () => {
   try {
     const response = await reportesService.getGlobales()
+    console.log(response.data)
     reportData.value = response.data
   } catch (error) {
     console.error('Error al conectar con la API de reportes:', error)
@@ -153,6 +154,24 @@ const iconBg = (colorName) => {
 /* ==========================================
    CONFIGURACIÓN DE GRÁFICA DE BARRAS
 ========================================== */
+const barColors = computed(() => {
+  const c = theme.current.value.colors
+
+  const palette = [
+    c.primary,
+    c.accent,
+    c.secondary,
+    c.success,
+    c.warning,
+    c.info,
+    c.error
+  ]
+
+  return reportData.value
+  ? reportData.value.grafica_barras.map((_, i) => palette[i % palette.length])
+  : []
+})
+
 const series = computed(() => {
   if (!reportData.value) return [{ name: 'Progreso', data: [] }]
   const porcentajes = reportData.value.grafica_barras.map(b => {
@@ -167,22 +186,42 @@ const chartOptions = computed(() => {
   const c = theme.current.value.colors
 
   return {
-    chart: { toolbar: { show: false }, fontFamily: 'inherit' },
-    plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } },
+    chart: { 
+      toolbar: { show: false },
+      fontFamily: 'inherit',
+      foreColor: c['on-surface'] 
+    },
+    plotOptions: { 
+      bar: { 
+        borderRadius: 6, 
+        columnWidth: '45%',
+        distributed: true 
+      }
+    },
+    theme: {
+      mode: theme.global.name.value
+    },
     xaxis: {
       categories,
-      labels: { style: { colors: c['on-surface'], fontSize: '12px' } },
+      labels: { 
+        style: { 
+          colors: c['on-surface'], 
+          fontSize: '12px' 
+        } 
+      },
       axisBorder: { show: false },
       axisTicks: { show: false }
     },
+
     yaxis: {
       min: 0,
       max: 100,
       labels: { formatter: val => `${val}%`, style: { colors: c['on-surface'] } }
     },
+
     grid: { borderColor: `${c['on-surface']}1A`, strokeDashArray: 4 },
     dataLabels: { enabled: true, formatter: val => `${val}%`, style: { fontWeight: 600 } },
-    colors: [c.primary]
+    colors: barColors.value
   }
 })
 
@@ -223,6 +262,7 @@ const prioridadColor = (prioridad) => {
     default: return 'grey'
   }
 }
+
 </script>
 
 <style scoped>

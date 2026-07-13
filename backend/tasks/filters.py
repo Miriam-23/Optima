@@ -23,7 +23,7 @@ class TareaFilter(django_filters.FilterSet):
         if value:  # si mandan ?vencidas=true
             return queryset.filter(
                 fecha_limite__lt=hoy
-            ).exclude(estado__nombre='Hecho')
+            ).exclude(estado__nombre='Completado')
         return queryset
 
     class Meta:
