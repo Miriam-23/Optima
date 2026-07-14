@@ -305,10 +305,6 @@ const estadoColor = (estado) => {
   }
 }
 
-// onMounted(() => {
-//   store.obtenerProyectos()
-// })
-
 // PRUEBA
 onMounted(async () => {
   await store.obtenerProyectos()

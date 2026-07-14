@@ -100,7 +100,10 @@ const loading = ref(false)
 const login = async () => {
   loading.value = true
 
-  const success = await auth.login(username.value, password.value)
+  const result = await auth.login(
+    username.value,
+    password.value
+  )
 
   loading.value = false
 

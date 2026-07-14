@@ -1,156 +1,109 @@
 <template>
-  <div>
+  <!-- ENCABEZADO PARA FILTRAR -->
+  <TaskFilters @new-task="nuevaTarea" @update:filters="setFilters" />
 
-    <h2 class="mb-4">Tareas</h2>
+  <!-- KANBAN -->
+  <TaskBoard @edit="editar" />
 
-    <!-- SELECT PROYECTO -->
-    <v-select
-      v-model="proyectoSeleccionado"
-      :items="proyectos"
-      item-title="nombre"
-      item-value="id"
-      label="Seleccionar proyecto"
-      variant="outlined"
-      class="mb-4"
-    />
+  <!-- DIALOGO PARA EDITAR UNA TAREA -->
+  <TaskDialog v-model="dialog" :task="selectedTask" />
 
-    <v-btn color="primary" class="mb-4" @click="dialog = true">
-      Nueva tarea
-    </v-btn>
-
-    <!-- KANBAN -->
-    <v-row>
-
-      <!-- TODO -->
-      <v-col cols="12" md="4">
-        <v-card class="pa-4">
-          <h3>Por hacer</h3>
-
-          <v-card
-            v-for="t in tareasFiltradas.todo"
-            :key="t.id"
-            class="pa-3 mt-3"
-          >
-            <strong>{{ t.titulo }}</strong>
-            <p>{{ t.descripcion }}</p>
-
-            <v-btn size="x-small"
-              @click="store.cambiarEstado(t.id, 'En progreso')"
-            >
-              Empezar
-            </v-btn>
-          </v-card>
-
-        </v-card>
-      </v-col>
-
-      <!-- DOING -->
-      <v-col cols="12" md="4">
-        <v-card class="pa-4">
-          <h3>En progreso</h3>
-
-          <v-card
-            v-for="t in tareasFiltradas.doing"
-            :key="t.id"
-            class="pa-3 mt-3"
-          >
-            <strong>{{ t.titulo }}</strong>
-
-            <v-btn size="x-small" color="green"
-              @click="store.cambiarEstado(t.id, 'Finalizada')"
-            >
-              Terminar
-            </v-btn>
-          </v-card>
-
-        </v-card>
-      </v-col>
-
-      <!-- DONE -->
-      <v-col cols="12" md="4">
-        <v-card class="pa-4">
-          <h3>Terminadas</h3>
-
-          <v-card
-            v-for="t in tareasFiltradas.done"
-            :key="t.id"
-            class="pa-3 mt-3"
-          >
-            <strong>{{ t.titulo }}</strong>
-
-            <v-btn size="x-small" color="red">
-              Eliminar
-            </v-btn>
-          </v-card>
-
-        </v-card>
-      </v-col>
-
-    </v-row>
-
-    <!-- DIALOG -->
-    <v-dialog v-model="dialog" max-width="500">
-      <v-card class="pa-4">
-
-        <h3>Nueva tarea</h3>
-
-        <v-text-field v-model="form.titulo" label="Título" />
-        <v-text-field v-model="form.descripcion" label="Descripción" />
-
-        <v-select
-          v-model="form.prioridad"
-          :items="['Baja','Media','Alta']"
-          label="Prioridad"
-        />
-
-        <v-btn color="primary" block @click="guardar">
-          Guardar
-        </v-btn>
-
-      </v-card>
-    </v-dialog>
-
-  </div>
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useTasks } from '@/composables/useTask'
 import { useTareasStore } from '@/stores/tareas'
-import { useProyectosStore } from '@/stores/proyectos'
+import TaskDialog from '@/components/tareas/TaskDialog.vue'
+import TaskBoard from '@/components/tareas/TaskBoard.vue'
+import TaskFilters from '@/components/tareas/TaskFilters.vue'
+import Swal from 'sweetalert2'
 
 const store = useTareasStore()
-const proyectosStore = useProyectosStore()
+
 
 const dialog = ref(false)
+const selectedTask = ref(null)
 
-const proyectoSeleccionado = ref(1)
+const {
+    filters,
+    setFilters
+} = useTasks()
 
-const proyectos = computed(() => proyectosStore.proyectos)
+function nuevaTarea() {
+    selectedTask.value = null
+    dialog.value = true
+}
 
-/* FILTRADO POR PROYECTO */
-const tareasFiltradas = computed(() => {
-  const tareas = store.porProyecto(proyectoSeleccionado.value)
+function editar(task) {
+    selectedTask.value = task
+    dialog.value = true
+}
 
-  return {
-    todo: tareas.filter(t => t.estado === 'Por hacer'),
-    doing: tareas.filter(t => t.estado === 'En progreso'),
-    done: tareas.filter(t => t.estado === 'Finalizada'),
-  }
-})
+const confirmarEliminar = async (id) => {
 
-const form = reactive({
-  titulo: '',
-  descripcion: '',
-  prioridad: 'Media',
-})
-
-const guardar = () => {
-  store.agregarTarea({
-    ...form,
-    estado: 'Por hacer',
-    proyectoId: proyectoSeleccionado.value,
+  const result = await Swal.fire({
+    title: '¿Deseas eliminar esta tarea?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    background: 'rgba(13, 194, 211,0.6)',
+    color: '#fff',
+    backdrop: 'rgba(0,0,0,0.4)',
+    showCancelButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: 'success',
+    cancelButtonColor: 'error',
+    confirmButtonColor: '#d32f2f', // Rojo
+    cancelButtonColor: '#1976D2',
+    customClass: {
+      popup: 'swal2-glass'
+    }
   })
 
-  dialog.value = false
+  if (!result.isConfirmed) return
+
+  try {
+
+    await store.eliminarTarea(id)
+
+    Swal.fire({
+      title: 'Tarea eliminada',
+      text: 'La tarea se elimino correctamente.',
+      icon: 'success',
+      background: 'rgba(0,0,0,0.6)',
+      color: '#fff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: false,
+      customClass: {
+        popup: 'swal2-glass'
+      }
+    })
+
+  } catch (error) {
+
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo eliminar la tarea.',
+      icon: 'error',
+      background: 'rgba(0,0,0,0.6)',
+      color: '#fff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: false,
+      customClass: {
+        popup: 'swal2-glass'
+      }
+    })
+
+    console.error(error)
+  }
 }
+
+onMounted(async () => {
+  await store.obtenerTareas()
+})
 </script>

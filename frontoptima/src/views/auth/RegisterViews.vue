@@ -187,8 +187,8 @@ const register = async () => {
     })
 
     Swal.fire({
-      title: 'Éxito',
-      text: 'Cuenta creada correctamente',
+      title: 'Cuenta Creada',
+      text:'Te enviamos un correo para activar tu cuenta.',
       icon: 'success',
       background: 'rgba(0,0,0,0.6)',
       color: '#fff',

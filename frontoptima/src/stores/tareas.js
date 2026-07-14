@@ -1,57 +1,102 @@
 import { defineStore } from 'pinia'
+import taskService from '@/services/task.service'
 
 export const useTareasStore = defineStore('tareas', {
   state: () => ({
-    tareas: [
-      {
-        id: 1,
-        titulo: 'Diseñar login',
-        descripcion: 'UI moderna',
-        estado: 'Por hacer',
-        prioridad: 'Alta',
-        proyectoId: 1,
-      },
-      {
-        id: 2,
-        titulo: 'Dashboard KPIs',
-        descripcion: 'Métricas principales',
-        estado: 'En Progreso',
-        prioridad: 'Media',
-        proyectoId: 1,
-      },
-      {
-        id: 3,
-        titulo: 'API proyectos',
-        descripcion: 'Conectar backend',
-        estado: 'Finalizada',
-        prioridad: 'Alta',
-        proyectoId: 2,
-      },
-    ],
+    tareas: [],
+    tareaActual: null,
+    loading: false,
+    error: null
   }),
 
   getters: {
+    // porProyecto: (state) => (proyectoId) =>
+    //   state.tareas.filter(t => t.proyectoId === proyectoId),
     porProyecto: (state) => (proyectoId) =>
-      state.tareas.filter(t => t.proyectoId === proyectoId),
+      state.tareas.filter(t => t.proyecto === proyectoId),
 
-    todo: (state) => state.tareas.filter(t => t.estado === 'Por hacer'),
-    doing: (state) => state.tareas.filter(t => t.estado === 'En progreso'),
-    done: (state) => state.tareas.filter(t => t.estado === 'Finalizada'),
-
+    pendiente: (state) => state.tareas.filter(t => t.nombre_estado === 'Por hacer'),
+    progreso: (state) => state.tareas.filter(t => t.nombre_estado === 'En progreso'),    
+    revision: (state) => state.tareas.filter(t => t.nombre_estado === 'En revision'),
+    completado: (state) => state.tareas.filter(t => t.nombre_estado === 'Completado'),
     total: (state) => state.tareas.length,
   },
 
   actions: {
-    agregarTarea(tarea) {
-      this.tareas.push({
-        id: Date.now(),
-        ...tarea,
-      })
+    // Obtener todas las tareas
+    async obtenerTareas() {
+      this.loading = true
+      try {
+        const res = await taskService.getAll()
+        console.log(res.data)
+        this.tareas = res.data
+      } catch (error) {
+        console.log(error)
+        this.error = error.res?.data || error.message
+      } finally {
+        this.loading = false
+      }
     },
 
-    cambiarEstado(id, estado) {
-      const t = this.tareas.find(x => x.id === id)
-      if (t) t.estado = estado
+    // Obtener una tarea
+    async obtenerTarea(id) {
+      this.loading = true
+
+      try {
+        const res = await taskService.getById(id)
+        this.tareaActual = res.data
+      } finally {
+        this.loading = false
+      }
     },
+
+    // Crear tarea
+    async crearTarea(data) {
+
+      const res = await taskService.create(data)
+      this.tareas.push(res.data)
+      return res.data
+    },
+
+    // Actualizar tarea
+    async actualizarTarea(id, data) {
+
+      const res = await taskService.update(id, data)
+      const index = this.tareas.findIndex(t => t.id === id)
+
+      if (index !== -1) {
+        this.tareas[index] = res.data
+      }
+
+      this.tareaActual = res.data
+      return res.data
+    },
+
+    // Actualizar parcialmente
+    async actualizarParcial(id, data) {
+
+      const res = await taskService.patch(id, data)
+      const index = this.tareas.findIndex(t => t.id === id)
+
+      if (index !== -1) {
+        this.tareas[index] = {
+          ...this.tareas[index],
+          ...res.data
+        }
+      }
+
+      this.tareaActual = res.data
+      return res.data
+    },
+
+    // Eliminar
+    async eliminarTarea(id) {
+
+      await taskService.remove(id)
+      this.tareas = this.tareas.filter(
+        t => t.id !== id
+      )
+    }
+
   },
 })

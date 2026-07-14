@@ -29,38 +29,77 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
 
+    // async login(username, password) {
+    //   try {
+    //     const res = await api.post('/api/auth/login/', {
+    //       username,
+    //       password,
+    //     })
+    //     console.log(res.data)
+
+    //     this.access = res.data.access
+    //     this.refresh = res.data.refresh
+    //     this.user = res.data.user
+
+    //     localStorage.setItem('access', this.access)
+    //     localStorage.setItem('refresh', this.refresh)
+    //     localStorage.setItem('user', JSON.stringify(this.user))
+
+    //     return true
+    //   } catch (error) {
+    //     console.log(error.response.data);
+    //   }
+    // },
+
     async login(username, password) {
       try {
-        const res = await api.post('/api/auth/login/', {
+
+        const { data } = await api.post('/api/auth/login/', {
           username,
-          password,
+          password
         })
-        console.log(res.data)
 
-        this.access = res.data.access
-        this.refresh = res.data.refresh
-        this.user = res.data.user
+        this.access = data.access
+        this.refresh = data.refresh
+        this.user = data.user
 
-        localStorage.setItem('access', this.access)
-        localStorage.setItem('refresh', this.refresh)
-        localStorage.setItem('user', JSON.stringify(this.user))
+        localStorage.setItem("access", data.access)
+        localStorage.setItem("refresh", data.refresh)
+        localStorage.setItem("user", JSON.stringify(data.user))
 
-        return true
+        return {
+          success: true
+        }
+
       } catch (error) {
-        console.log(error.response.data);
+
+        return {
+          success: false,
+          message:
+            error.response?.data?.detail ||
+            error.response?.data?.error ||
+            "No fue posible iniciar sesión."
+        }
+
       }
+
     },
 
     // Registro
     async register(data) {
-      await api.post('/api/auth/register/', {
-        username: data.username,
-        email: data.email,
-        password: data.password
-      })
+      try {
 
-      // Login automático
-      await this.login(data.username, data.password)
+        const response = await api.post('/api/auth/register/', {
+          username: data.username,
+          email: data.email,
+          password: data.password
+        })
+
+        return response.data
+
+      } catch (error) {
+        throw error.response?.data || error
+      }
     },
 
     //CIERRE DE SESION
