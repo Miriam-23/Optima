@@ -13,9 +13,7 @@
           <v-icon>{{ theme.global.name.value === 'light' ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
         </v-btn>
 
-        <v-btn icon>
-            <v-icon>mdi-bell</v-icon>
-        </v-btn>
+        <NotificationsMenu />
 
         <v-btn icon @click="logout">
           <v-icon>mdi-logout</v-icon>
@@ -84,6 +82,7 @@ import { defineEmits, defineProps } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { computed } from 'vue'
+import NotificationsMenu from '@/components/notifications/NotificationsMenu.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
