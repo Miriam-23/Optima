@@ -17,22 +17,37 @@ class TareaUsuarioReadSerializer(serializers.ModelSerializer):
         model = TareaUsuario
         fields = ['usuario_id', 'nombre', 'email', 'fecha_asignacion']
 
-# --- TAREA LECTURA (GET) ---
-# Devuelve todo enriquecido para que el frontend pueda pintar sin peticiones extra
+# --- RESPONSABLES PARA TARJETA KANBAN ---
+class ResponsableCardSerializer(serializers.ModelSerializer):
+    usuario_id = serializers.IntegerField(source='usuario.id', read_only=True)
+    nombre = serializers.CharField(source='usuario.username', read_only=True)
+
+    class Meta:
+        model = TareaUsuario
+        fields = ['usuario_id', 'nombre']
+
+# --- TAREA LISTADO/KANBAN (GET list) ---
+# Información resumida para pintar tarjetas
 class TareaReadSerializer(serializers.ModelSerializer):
-    nombre_proyecto = serializers.CharField(source='proyecto.nombre', read_only=True)
     nombre_estado = serializers.CharField(source='estado.nombre', read_only=True)
-    responsables = TareaUsuarioReadSerializer(many=True, read_only=True)
+    responsables = ResponsableCardSerializer(many=True, read_only=True)
+    total_comentarios = serializers.IntegerField()
 
     class Meta:
         model = Tarea
         fields = [
-            'id', 'titulo', 'descripcion', 'fecha_creacion', 'fecha_limite',
-            'fecha_finalizacion_real', 'esfuerzo_estimado', 'prioridad',
-            'proyecto', 'nombre_proyecto',   # ID para operar + nombre para mostrar
-            'estado', 'nombre_estado',       # ID para operar + nombre para mostrar
-            'responsables'
+            'id',
+            'titulo',
+            'prioridad',
+            'fecha_limite',
+            'estado',
+            'nombre_estado',
+            'responsables',
+            'total_comentarios'
         ]
+
+    def get_total_comentarios(self, obj):
+        return obj.comentarios.count()
 
 # --- TAREA ESCRITURA (POST / PUT / PATCH) ---
 # Solo acepta IDs, limpio y directo
@@ -120,6 +135,28 @@ class AsignacionTareaSerializer(serializers.ModelSerializer):
 
         return data
     
+# --- TAREA DETALLE (GET retrieve) ---
+# Incluye comentarios y más detalles para la vista de detalle
+class TareaDetailSerializer(serializers.ModelSerializer):
+    nombre_proyecto = serializers.CharField(source='proyecto.nombre', read_only=True)
+    nombre_estado = serializers.CharField(source='estado.nombre', read_only=True)
+    responsables = TareaUsuarioReadSerializer(many=True, read_only=True)
+    comentarios = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Tarea
+        fields = [
+            'id', 'titulo', 'descripcion', 'fecha_creacion', 'fecha_limite',
+            'fecha_finalizacion_real', 'esfuerzo_estimado', 'prioridad',
+            'proyecto', 'nombre_proyecto',
+            'estado', 'nombre_estado',
+            'responsables', 'comentarios'
+        ]
+
+    def get_comentarios(self, obj):
+        comentarios = obj.comentarios.all().order_by('-fecha_creacion')
+        return ComentarioSerializer(comentarios, many=True, read_only=True).data
+
 # --- COMENTARIOS ---
 class ComentarioSerializer(serializers.ModelSerializer):
     nombre_autor = serializers.CharField(source='usuario.username', read_only=True)

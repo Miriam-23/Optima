@@ -37,7 +37,8 @@ Optima — Gestión de Proyectos
         pass  # El correo es secundario, nunca debe romper el flujo principal
 
 def enviar_correo_verificacion(usuario, token):
-    enlace = f'http://localhost:8000/api/auth/verificar/{token}/'
+    # Construye el enlace de verificación usando el token
+    enlace = f'http://localhost:5173/verificar/{token}'
     asunto = 'Verifica tu cuenta — Optima'
     cuerpo = f"""
 Hola {usuario.username},

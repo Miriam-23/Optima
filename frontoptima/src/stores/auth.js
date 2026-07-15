@@ -52,15 +52,19 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // Registro
-    async register(data) {
-      await api.post('/api/auth/register/', {
-        username: data.username,
-        email: data.email,
-        password: data.password
-      })
+     async register(data) {
+      try {
+        const response = await api.post('/api/auth/register/', {
+          username: data.username,
+          email: data.email,
+          password: data.password
+        })
 
-      // Login automático
-      await this.login(data.username, data.password)
+        return response.data
+
+      } catch (error) {
+        throw error.response?.data || error
+      }
     },
 
     //CIERRE DE SESION

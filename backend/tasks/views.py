@@ -1,26 +1,47 @@
 from rest_framework import viewsets, mixins
 from .models import Tarea, Comentario, Estado, TareaUsuario
 from .serializers import (
-    TareaReadSerializer, TareaWriteSerializer,
+    TareaReadSerializer, TareaDetailSerializer, TareaWriteSerializer,
     ComentarioSerializer, EstadoSerializer, AsignacionTareaSerializer
 )
 from .filters import TareaFilter, ComentarioFilter
 from .permissions import TareaPermiso, ComentarioPermiso
 from notifications.utils import notificar_miembro, notificar_project_managers
+from django.db.models import Count
 
 class TareaViewSet(viewsets.ModelViewSet):
     permission_classes = [TareaPermiso]
     filterset_class = TareaFilter
-
+    
     def get_queryset(self):
-        return Tarea.objects.filter(
+        queryset = Tarea.objects.filter(
             proyecto__equipo__usuario=self.request.user
-        ).select_related('proyecto', 'estado').prefetch_related('responsables__usuario').distinct()
+        ).select_related(
+            'proyecto',
+            'estado'
+        )
+
+        if self.action == 'retrieve':
+            queryset = queryset.prefetch_related(
+                'responsables__usuario',
+                'comentarios__usuario'
+            )
+
+        else:
+            queryset = queryset.prefetch_related(
+                'responsables__usuario'
+            ).annotate(
+                total_comentarios=Count('comentarios')
+            )
+
+        return queryset.distinct()
 
     def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
-            return TareaReadSerializer
-        return TareaWriteSerializer
+            if self.action == 'retrieve':
+                return TareaDetailSerializer
+            if self.action == 'list':
+                return TareaReadSerializer
+            return TareaWriteSerializer
 
     def perform_create(self, serializer):
         tarea = serializer.save()

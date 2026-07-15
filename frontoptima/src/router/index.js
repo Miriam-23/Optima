@@ -6,12 +6,12 @@ import AuthLayout from '@/layouts/AuthLayout.vue'
 
 import LoginView from '@/views/auth/LoginViews.vue'
 import RegisterView from '@/views/auth/RegisterViews.vue'
+import VerifyAccountView from '@/views/auth/VerifyAccountView.vue'
 import DashboardView from '@/views/dashboard/DashboardViews.vue'
 import ProyectosView from '@/views/proyectos/ProyectosViews.vue'
 import TareasView from '@/views/tareas/TareasViews.vue'
 import PerfilView from '@/views/auth/PerfilViews.vue'
 import ProyectoDetalleView from '@/views/proyectos/ProyectoDetailsViews.vue'
-//import TaskDetailsDialog from "@/components/tareas/TaskDetailsDialog.vue";
 
 const routes = [
   {
@@ -26,11 +26,25 @@ const routes = [
         path: 'login',
         name:'login',
         component: LoginView,
+        meta: {
+          public: true
+        }
       },
       {
         path: 'register',
         name:'register',
         component: RegisterView,
+        meta: {
+          public: true
+        }
+      },
+      {
+        path: 'verificar/:token',
+        name: 'verify-account',
+        component: VerifyAccountView,
+        meta: {
+          public: true
+        }
       },
     ],
   },
@@ -76,14 +90,14 @@ const router = createRouter({
 router.beforeEach((to) => {
 
   const auth = useAuthStore()
-  const publicPages = ['/login', '/register']
-  const authRequired = !publicPages.includes(to.path)
+
+  //const authRequired = !to.meta.public
 
   if (authRequired && !auth.isAuthenticated) {
     return '/login'
   }
 
-  if (publicPages.includes(to.path) && auth.isAuthenticated) {
+  if (to.meta.public && auth.isAuthenticated) {
     return '/dashboard'
   }
 
