@@ -25,12 +25,12 @@
     <!-- SIDEBAR -->
     <v-navigation-drawer v-model="drawer" color="surface" app>     
       <!-- Perfil -->
-      <div class="pa-5 text-center">
+      <!-- <div class="pa-5 text-center">
 
         <v-avatar size="80" color="primary">
           <v-img
-            v-if="authStore.user?.foto"
-            :src="authStore.user.foto"
+            v-if="authStore.user?.avatar_url"
+            :src="authStore.user.avatar_url"
           />
 
           <span
@@ -49,18 +49,38 @@
           {{ authStore.user?.email }}
         </div>
 
-      </div>
+      </div> -->
 
       <v-divider /> 
       <!-- MODULOS DE NAVEGACIÓN -->
       <v-list nav>
 
+        <!-- Perfil -->
+        <v-list-item to="/perfil">
+          <template #prepend>
+            <v-avatar size="40" color="primary">
+              <v-img
+                v-if="authStore.user?.avatar_url"
+                :src="authStore.user.avatar_url"
+              />
+              <span v-else class="text-caption font-weight-bold text-white">
+                {{ iniciales }}
+              </span>
+            </v-avatar>
+          </template>
+
+          <v-list-item-title>
+            {{ authStore.user?.username }}
+          </v-list-item-title>
+
+          <v-list-item-subtitle>
+            Mi perfil
+          </v-list-item-subtitle>
+
+        </v-list-item>
         <v-list-item to="/dashboard" prepend-icon="mdi-view-dashboard" title="Dashboard" />
         <v-list-item to="/proyectos" prepend-icon="mdi-folder" title="Proyectos" />
         <v-list-item to="/tareas" prepend-icon="mdi-format-list-checkbox" title="Tareas" />
-        <v-list-item to="/usuarios" prepend-icon="mdi-account-group" title="Usuarios" />
-        <v-list-item to="/reportes" prepend-icon="mdi-chart-box" title="Reportes" />
-        <v-list-item to="/configuracion" prepend-icon="mdi-cog" title="Configuración" />
 
       </v-list>
     </v-navigation-drawer>

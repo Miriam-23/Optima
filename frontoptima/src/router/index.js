@@ -9,9 +9,7 @@ import RegisterView from '@/views/auth/RegisterViews.vue'
 import DashboardView from '@/views/dashboard/DashboardViews.vue'
 import ProyectosView from '@/views/proyectos/ProyectosViews.vue'
 import TareasView from '@/views/tareas/TareasViews.vue'
-import UsuariosView from '@/views/usuarios/UsuariosViews.vue'
-import ReportesView from '@/views/reportes/ReportesViews.vue'
-import ConfiguracionView from '@/views/configuracion/ConfiguracionViews.vue'
+import PerfilView from '@/views/auth/PerfilViews.vue'
 import ProyectoDetalleView from '@/views/proyectos/ProyectoDetailsViews.vue'
 
 const routes = [
@@ -33,7 +31,6 @@ const routes = [
       },
     ],
   },
-
   {
     path: '/',
     component: MainLayout,
@@ -57,16 +54,8 @@ const routes = [
         component: TareasView,
       },
       {
-        path: 'usuarios',
-        component: UsuariosView,
-      },
-      {
-        path: 'reportes',
-        component: ReportesView,
-      },
-      {
-        path: 'configuracion',
-        component: ConfiguracionView,
+        path: 'perfil',
+        component: PerfilView,
       },
     ],
   },
@@ -80,9 +69,7 @@ const router = createRouter({
 router.beforeEach((to) => {
 
   const auth = useAuthStore()
-
   const publicPages = ['/login', '/register']
-
   const authRequired = !publicPages.includes(to.path)
 
   if (authRequired && !auth.isAuthenticated) {

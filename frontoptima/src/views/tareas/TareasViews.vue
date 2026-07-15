@@ -1,156 +1,141 @@
 <template>
-  <div>
+  <!-- ENCABEZADO PARA FILTRAR -->
+  <TaskFilters @new-task="nuevaTarea" @update:filters="setFilters" />
 
-    <h2 class="mb-4">Tareas</h2>
+  <!-- KANBAN -->
+  <TaskBoard 
+    :pendiente="pendiente"
+    :progreso="progreso"
+    :revision="revision"
+    :completado="completado"
+    @edit="editar" 
+    @delete="confirmarEliminar"
+  />
 
-    <!-- SELECT PROYECTO -->
-    <v-select
-      v-model="proyectoSeleccionado"
-      :items="proyectos"
-      item-title="nombre"
-      item-value="id"
-      label="Seleccionar proyecto"
-      variant="outlined"
-      class="mb-4"
-    />
+  <!-- DIALOGO PARA EDITAR UNA TAREA -->
+  <TaskDialog v-model="dialog" :task="selectedTask" @save="guardarTarea" />
 
-    <v-btn color="primary" class="mb-4" @click="dialog = true">
-      Nueva tarea
-    </v-btn>
-
-    <!-- KANBAN -->
-    <v-row>
-
-      <!-- TODO -->
-      <v-col cols="12" md="4">
-        <v-card class="pa-4">
-          <h3>Por hacer</h3>
-
-          <v-card
-            v-for="t in tareasFiltradas.todo"
-            :key="t.id"
-            class="pa-3 mt-3"
-          >
-            <strong>{{ t.titulo }}</strong>
-            <p>{{ t.descripcion }}</p>
-
-            <v-btn size="x-small"
-              @click="store.cambiarEstado(t.id, 'En progreso')"
-            >
-              Empezar
-            </v-btn>
-          </v-card>
-
-        </v-card>
-      </v-col>
-
-      <!-- DOING -->
-      <v-col cols="12" md="4">
-        <v-card class="pa-4">
-          <h3>En progreso</h3>
-
-          <v-card
-            v-for="t in tareasFiltradas.doing"
-            :key="t.id"
-            class="pa-3 mt-3"
-          >
-            <strong>{{ t.titulo }}</strong>
-
-            <v-btn size="x-small" color="green"
-              @click="store.cambiarEstado(t.id, 'Finalizada')"
-            >
-              Terminar
-            </v-btn>
-          </v-card>
-
-        </v-card>
-      </v-col>
-
-      <!-- DONE -->
-      <v-col cols="12" md="4">
-        <v-card class="pa-4">
-          <h3>Terminadas</h3>
-
-          <v-card
-            v-for="t in tareasFiltradas.done"
-            :key="t.id"
-            class="pa-3 mt-3"
-          >
-            <strong>{{ t.titulo }}</strong>
-
-            <v-btn size="x-small" color="red">
-              Eliminar
-            </v-btn>
-          </v-card>
-
-        </v-card>
-      </v-col>
-
-    </v-row>
-
-    <!-- DIALOG -->
-    <v-dialog v-model="dialog" max-width="500">
-      <v-card class="pa-4">
-
-        <h3>Nueva tarea</h3>
-
-        <v-text-field v-model="form.titulo" label="Título" />
-        <v-text-field v-model="form.descripcion" label="Descripción" />
-
-        <v-select
-          v-model="form.prioridad"
-          :items="['Baja','Media','Alta']"
-          label="Prioridad"
-        />
-
-        <v-btn color="primary" block @click="guardar">
-          Guardar
-        </v-btn>
-
-      </v-card>
-    </v-dialog>
-
-  </div>
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useTareasStore } from '@/stores/tareas'
-import { useProyectosStore } from '@/stores/proyectos'
+import TaskDialog from '@/components/tareas/TaskDialog.vue'
+import TaskBoard from '@/components/tareas/TaskBoard.vue'
+import TaskFilters from '@/components/tareas/TaskFilters.vue'
+import Swal from 'sweetalert2'
 
 const store = useTareasStore()
-const proyectosStore = useProyectosStore()
 
 const dialog = ref(false)
+const selectedTask = ref(null)
 
-const proyectoSeleccionado = ref(1)
+const {
+  pendiente,
+  progreso,
+  revision,
+  completado
+} = storeToRefs(store)
 
-const proyectos = computed(() => proyectosStore.proyectos)
+const { setFilters } = store
 
-/* FILTRADO POR PROYECTO */
-const tareasFiltradas = computed(() => {
-  const tareas = store.porProyecto(proyectoSeleccionado.value)
+function nuevaTarea() {
+  selectedTask.value = null
+  dialog.value = true
+}
 
-  return {
-    todo: tareas.filter(t => t.estado === 'Por hacer'),
-    doing: tareas.filter(t => t.estado === 'En progreso'),
-    done: tareas.filter(t => t.estado === 'Finalizada'),
+function editar(task) {
+  selectedTask.value = task
+  dialog.value = true
+}
+
+const guardarTarea = async (data) => {
+
+  try {
+
+    if (selectedTask.value) {
+
+      await store.actualizarTarea(selectedTask.value.id, data)
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Tarea actualizada',
+        text: 'La tarea se actualizó correctamente.',
+        timer: 1500,
+        showConfirmButton: false
+      })
+
+    } else {
+
+      await store.crearTarea(data)
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Tarea creada',
+        text: 'La tarea se creó correctamente.',
+        timer: 1500,
+        showConfirmButton: false
+      })
+
+    }
+
+    dialog.value = false
+    selectedTask.value = null
+
+  } catch (error) {
+
+    console.error(error)
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo guardar la tarea.',
+      showConfirmButton: false
+    })
+
   }
-})
 
-const form = reactive({
-  titulo: '',
-  descripcion: '',
-  prioridad: 'Media',
-})
+}
 
-const guardar = () => {
-  store.agregarTarea({
-    ...form,
-    estado: 'Por hacer',
-    proyectoId: proyectoSeleccionado.value,
+const confirmarEliminar = async (task) => {
+
+  const result = await Swal.fire({
+    title: '¿Eliminar tarea?',
+    text: task.titulo,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true
   })
 
-  dialog.value = false
+  if (!result.isConfirmed) return
+
+  try {
+
+    await store.eliminarTarea(task.id)
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Tarea eliminada',
+      timer: 1200,
+      showConfirmButton: false
+    })
+
+  } catch (error) {
+
+    Swal.fire({
+      icon: 'error',
+      title: 'No se pudo eliminar',
+      text: error.response?.data?.detail || 'Error del servidor'
+    })
+
+  }
+
 }
+
+onMounted(async () => {
+  await store.obtenerTareas()
+})
 </script>

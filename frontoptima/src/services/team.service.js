@@ -2,20 +2,21 @@ import api from './api'
 
 export default {
 
-    getAll() {
-        return api.get('/api/team/')
+    getAll(params = {}) {
+        return api.get('/api/team/', {params})
     },
 
-    getById(id) {
-        return api.get(`/api/team/${id}/`)
+    getByProject(projectId) {
+        return api.get('/api/team/', {
+            params:{proyecto: projectId}
+        })
     },
 
-    create(data) {
+    create(data){
         return api.post('/api/team/', data)
     },
 
-    remove(id) {
+    delete(id){
         return api.delete(`/api/team/${id}/`)
     }
-
 }

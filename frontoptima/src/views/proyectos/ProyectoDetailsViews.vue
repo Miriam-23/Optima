@@ -187,7 +187,7 @@ const donutOptions = computed(() => {
   return {
     labels: projectDashboard.value.distribucion_por_estado.map(e => e.estado__nombre),
     theme: { mode: theme.global.name.value },
-    colors: ['#FFB300', '#FF5252', '#4CAF50', '#2196F3'],
+    colors: [ '#4CAF50','#FFB300', '#2196F3', '#FF5252'],
     legend: { position: 'bottom' }
   }
 })
