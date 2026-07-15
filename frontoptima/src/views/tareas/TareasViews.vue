@@ -24,6 +24,7 @@ import { useTareasStore } from '@/stores/tareas'
 import TaskDialog from '@/components/tareas/TaskDialog.vue'
 import TaskBoard from '@/components/tareas/TaskBoard.vue'
 import TaskFilters from '@/components/tareas/TaskFilters.vue'
+import assignmentService from '@/services/assignment.service'
 import Swal from 'sweetalert2'
 
 const store = useTareasStore()
@@ -68,7 +69,17 @@ const guardarTarea = async (data) => {
 
     } else {
 
-      await store.crearTarea(data)
+      const tarea = await store.crearTarea(data)
+      console.log("TAREA CREADA:", tarea)
+
+      if (data.responsable) {
+        console.log("Asignando usuario:", data.responsable)
+        const res = await assignmentService.crearAsignacion({
+          tarea: tarea.id,
+          usuario: data.responsable
+        })
+        console.log("RESPUESTA ASIGNACIÓN:", res.data)
+      }
 
       await Swal.fire({
         icon: 'success',

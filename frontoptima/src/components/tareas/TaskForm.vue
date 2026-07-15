@@ -124,7 +124,6 @@
 import { ref, reactive, watch, computed, onMounted } from 'vue'
 import { useProyectosStore } from '@/stores/proyectos'
 import { useTareasStore } from '@/stores/tareas'
-import assignmentService from '@/services/assignment.service'
 import teamService from '@/services/team.service'
 
 
