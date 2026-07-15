@@ -11,6 +11,7 @@ import ProyectosView from '@/views/proyectos/ProyectosViews.vue'
 import TareasView from '@/views/tareas/TareasViews.vue'
 import PerfilView from '@/views/auth/PerfilViews.vue'
 import ProyectoDetalleView from '@/views/proyectos/ProyectoDetailsViews.vue'
+//import TaskDetailsDialog from "@/components/tareas/TaskDetailsDialog.vue";
 
 const routes = [
   {
@@ -23,10 +24,12 @@ const routes = [
     children: [
       {
         path: 'login',
+        name:'login',
         component: LoginView,
       },
       {
         path: 'register',
+        name:'register',
         component: RegisterView,
       },
     ],
@@ -37,10 +40,12 @@ const routes = [
     children: [
       {
         path: 'dashboard',
+        name:'dasboard',
         component: DashboardView,
       },
       {
         path: 'proyectos',
+        name:'proyectos',
         component: ProyectosView,
       },
       {
@@ -51,10 +56,12 @@ const routes = [
       },
       {
         path: 'tareas',
+        name:'tareas',
         component: TareasView,
       },
       {
         path: 'perfil',
+        name:'perfil',
         component: PerfilView,
       },
     ],

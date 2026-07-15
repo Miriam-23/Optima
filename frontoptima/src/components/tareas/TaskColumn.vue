@@ -1,19 +1,12 @@
 <template>
-  <v-card
-    class="task-column pa-3"
-    elevation="1"
-    rounded="lg"
-  >
+  <v-card class="task-column pa-3" elevation="1" rounded="lg"  >
 
     <!-- Header -->
     <div class="d-flex justify-space-between align-center mb-4">
 
       <div class="d-flex align-center">
 
-        <v-icon
-          :color="color"
-          class="mr-2"
-        >
+        <v-icon :color="color" class="mr-2">
           {{ icon }}
         </v-icon>
 
@@ -23,10 +16,7 @@
 
       </div>
 
-      <v-chip
-        size="small"
-        color="primary"
-      >
+      <v-chip size="small" color="primary">
         {{ tasks.length }}
       </v-chip>
 

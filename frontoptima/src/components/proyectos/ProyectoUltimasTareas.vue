@@ -5,7 +5,7 @@
     <div class="d-flex justify-space-between align-center mb-3">
       <h3>Últimas tareas</h3>
       <!-- Aquí podrías poner un router-link hacia la vista completa de tareas después -->
-      <v-btn size="small" variant="text" color="primary">
+      <v-btn size="small" variant="text" color="primary" @click="verTareas">
         Ver todas
       </v-btn>
     </div>
@@ -51,6 +51,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
   projectId: {
@@ -63,6 +66,17 @@ const props = defineProps({
     default: () => []
   }
 })
+
+const verTareas = () => {
+
+  router.push({
+    name: 'tareas',
+    query: {
+      proyecto: props.projectId
+    }
+  })
+
+}
 
 // 2. Mapeamos las tareas. Usamos slice(0, 5) por si Django te manda 50, 
 // no romper el diseño de esta tarjeta resumen.

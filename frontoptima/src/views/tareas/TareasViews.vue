@@ -8,6 +8,7 @@
     :progreso="progreso"
     :revision="revision"
     :completado="completado"
+    @open="abrirDetalle"
     @edit="editar" 
     @delete="confirmarEliminar"
   />
@@ -15,22 +16,34 @@
   <!-- DIALOGO PARA EDITAR UNA TAREA -->
   <TaskDialog v-model="dialog" :task="selectedTask" @save="guardarTarea" />
 
+  <!-- VISUALIZAR DE LA TAREA SUS DETALLES -->
+  <TaskDetailDialog v-model="dialogDetalle" :task="tareaSeleccionada" />
+
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useTareasStore } from '@/stores/tareas'
 import TaskDialog from '@/components/tareas/TaskDialog.vue'
 import TaskBoard from '@/components/tareas/TaskBoard.vue'
 import TaskFilters from '@/components/tareas/TaskFilters.vue'
+import TaskDetailDialog from '@/components/tareas/TaskDetailsDialog.vue'
 import assignmentService from '@/services/assignment.service'
 import Swal from 'sweetalert2'
 
 const store = useTareasStore()
-
+const route = useRoute()
 const dialog = ref(false)
+const dialogDetalle = ref(false)
 const selectedTask = ref(null)
+const tareaSeleccionada = ref(null)
+
+const abrirDetalle = (task)=>{
+  tareaSeleccionada.value = task
+  dialogDetalle.value = true
+}
 
 const {
   pendiente,
@@ -148,5 +161,13 @@ const confirmarEliminar = async (task) => {
 
 onMounted(async () => {
   await store.obtenerTareas()
+
+  if(route.query.proyecto){
+
+    store.setFilters({
+      proyecto:Number(route.query.proyecto)
+    })
+
+  }
 })
 </script>

@@ -15,6 +15,13 @@
         </template>
 
         <v-list density="compact">
+
+          <v-list-item
+            prepend-icon="mdi-eye"
+            title="Ver Tarea"
+            @click="$emit('open', task)"
+          />
+
           <v-list-item
             prepend-icon="mdi-pencil"
             title="Editar"
@@ -26,6 +33,7 @@
             title="Eliminar"
             @click="$emit('delete', props.task)"
           />
+
         </v-list>
       </v-menu>
 
