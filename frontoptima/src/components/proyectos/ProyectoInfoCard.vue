@@ -59,14 +59,10 @@ defineProps({
 
 const estadoColor = (estado) => {
   switch (estado) {
-    case 'En progreso':
-      return 'orange'
-    case 'Completado':
-      return 'green'
-    case 'Pausado':
-      return 'red'
-    case 'Planificacion':
-      return 'blue'
+    case 'En progreso': return 'orange'
+    case 'Completado': return 'green'
+    case 'Pausado': return 'red'
+    case 'Planificacion': return 'blue'
     default:
       return 'grey'
   }

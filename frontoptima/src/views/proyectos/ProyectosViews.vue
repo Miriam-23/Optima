@@ -82,7 +82,7 @@
     </v-row>
 
     <!-- DIALOG -->
-    <v-dialog v-model="dialog" max-width="500">
+    <v-dialog v-model="dialog" persistent max-width="500">
       <v-card class="pa-4" style="overflow: visible;">
 
         <h3 class="mb-4">
@@ -113,19 +113,26 @@
         <v-textarea
           v-model="form.descripcion"
           label="Descripción"
+          rows="3"
         />
 
-        <v-text-field
-          v-model="form.fecha_inicio"
-          type="date"
-          label="Fecha inicio"
-        />
-
-        <v-text-field
-          v-model="form.fecha_fin"
-          type="date"
-          label="Fecha fin"
-        />
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="form.fecha_inicio"
+              type="date"
+              label="Fecha inicio"
+            />
+          </v-col>
+          
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="form.fecha_fin"
+              type="date"
+              label="Fecha fin"
+            />
+          </v-col>
+        </v-row>
 
         <v-select
           v-model="form.estado_general"
@@ -141,10 +148,11 @@
         <!-- ACTIONS -->
         <v-card-actions>
           <v-spacer />
-
           <v-btn
             color="accent"
             class="mt-4"
+            :loading="guardando"
+            :disabled="guardando"
             @click="guardar"
           >
             Guardar
@@ -158,17 +166,6 @@
             Cancelar
           </v-btn>
         </v-card-actions>
-        <v-btn
-          color="accent"
-          block
-          class="mt-4"
-          :loading="guardando"
-          :disabled="guardando"
-          @click="guardar"
-        >
-          Guardar
-        </v-btn>
-
       </v-card>
     </v-dialog>
 
@@ -366,9 +363,9 @@ const close = () => {
 const estadoColor = (estado) => {
   switch (estado) {
     case 'Planificacion': return 'blue'
-    case 'En progreso': return 'green'
-    case 'Pausado': return 'orange'
-    case 'Completado': return 'grey'
+    case 'En progreso': return 'orange'
+    case 'Pausado': return 'red'
+    case 'Completado': return 'green'
     default: return 'grey'
   }
 }

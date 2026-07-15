@@ -43,7 +43,7 @@ export const useProyectosStore = defineStore('proyectos', {
       this.proyectos.push(response.data)
     },
 
-async actualizarProyecto(id, data) {
+    async actualizarProyecto(id, data) {
       try {
         const response = await projectService.update(id, data)
         const index = this.proyectos.findIndex(p => p.id === id)

@@ -10,9 +10,7 @@ import VerifyAccountView from '@/views/auth/VerifyAccountView.vue'
 import DashboardView from '@/views/dashboard/DashboardViews.vue'
 import ProyectosView from '@/views/proyectos/ProyectosViews.vue'
 import TareasView from '@/views/tareas/TareasViews.vue'
-import UsuariosView from '@/views/usuarios/UsuariosViews.vue'
-import ReportesView from '@/views/reportes/ReportesViews.vue'
-import ConfiguracionView from '@/views/configuracion/ConfiguracionViews.vue'
+import PerfilView from '@/views/auth/PerfilViews.vue'
 import ProyectoDetalleView from '@/views/proyectos/ProyectoDetailsViews.vue'
 
 const routes = [
@@ -26,6 +24,7 @@ const routes = [
     children: [
       {
         path: 'login',
+        name:'login',
         component: LoginView,
         meta: {
           public: true
@@ -33,6 +32,7 @@ const routes = [
       },
       {
         path: 'register',
+        name:'register',
         component: RegisterView,
         meta: {
           public: true
@@ -48,17 +48,18 @@ const routes = [
       },
     ],
   },
-
   {
     path: '/',
     component: MainLayout,
     children: [
       {
         path: 'dashboard',
+        name:'dasboard',
         component: DashboardView,
       },
       {
         path: 'proyectos',
+        name:'proyectos',
         component: ProyectosView,
       },
       {
@@ -69,19 +70,13 @@ const routes = [
       },
       {
         path: 'tareas',
+        name:'tareas',
         component: TareasView,
       },
       {
-        path: 'usuarios',
-        component: UsuariosView,
-      },
-      {
-        path: 'reportes',
-        component: ReportesView,
-      },
-      {
-        path: 'configuracion',
-        component: ConfiguracionView,
+        path: 'perfil',
+        name:'perfil',
+        component: PerfilView,
       },
     ],
   },
@@ -96,7 +91,7 @@ router.beforeEach((to) => {
 
   const auth = useAuthStore()
 
-  const authRequired = !to.meta.public
+  //const authRequired = !to.meta.public
 
   if (authRequired && !auth.isAuthenticated) {
     return '/login'
