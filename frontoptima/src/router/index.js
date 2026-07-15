@@ -91,7 +91,7 @@ router.beforeEach((to) => {
 
   const auth = useAuthStore()
 
-  //const authRequired = !to.meta.public
+  const authRequired = !to.meta.public
 
   if (authRequired && !auth.isAuthenticated) {
     return '/login'
