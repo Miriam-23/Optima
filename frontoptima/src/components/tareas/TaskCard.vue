@@ -1,5 +1,12 @@
 <template>
-  <v-card class="task-card pa-2" elevation="3" rounded="small" @click="$emit('open', task)">
+  <v-card
+    class="task-card pa-2"
+    elevation="3"
+    rounded="small"
+    draggable="true"
+    @click="$emit('open', task)"
+    @dragstart="$emit('drag-start', task)"
+  >
     <!-- CABECERA -->
     <div class="d-flex justify-space-between align-center mb-3">
 
@@ -44,30 +51,6 @@
       {{ task.titulo }}
     </div>
 
-    <!-- DESCRIPCION -->
-    <div
-      class="text-body-2 text-medium-emphasis mb-4 description"
-    >
-      {{ task.descripcion }}
-    </div>
-
-    <!-- ETIQUETAS -->
-    <div
-      class="d-flex flex-wrap ga-2 mb-4"
-      v-if="task.etiquetas?.length"
-    >
-      <v-chip
-        v-for="tag in task.etiquetas"
-        :key="tag"
-        size="x-small"
-        color="primary"
-        variant="flat"
-        rounded="pill"
-      >
-        {{ tag }}
-      </v-chip>
-    </div>
-
     <!-- FOOTER -->
     <div class="d-flex justify-space-between align-center mt-4">
 
@@ -100,7 +83,7 @@
           <v-icon size="18">mdi-comment-outline</v-icon>
 
           <span class="text-caption ml-1">
-            {{ task.comentarios ?? 0 }}
+            {{ task.total_comentarios ?? 0 }}
           </span>
         </div>
 
@@ -131,7 +114,8 @@ const props = defineProps({
 const emit = defineEmits([
   'open',
   'edit',
-  'delete'
+  'delete',
+  'drag-start'
 ])
 
 const priority = computed(() => {

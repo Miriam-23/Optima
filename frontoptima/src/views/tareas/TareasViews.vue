@@ -160,14 +160,12 @@ const confirmarEliminar = async (task) => {
 }
 
 onMounted(async () => {
-  await store.obtenerTareas()
+  const initialFilters = {}
 
-  if(route.query.proyecto){
-
-    store.setFilters({
-      proyecto:Number(route.query.proyecto)
-    })
-
+  if (route.query.proyecto) {
+    initialFilters.proyecto = Number(route.query.proyecto)
   }
+
+  await store.setFilters(initialFilters)
 })
 </script>

@@ -68,38 +68,71 @@ class TareaWriteSerializer(serializers.ModelSerializer):
         proyecto = data.get('proyecto')
         hoy = timezone.now().date()
 
-        # Validación 1: solo el Project Manager puede crear/editar tareas
+
+        # Validación 1: solo Project Manager puede crear/editar tareas
+        if self.instance and not proyecto:
+            proyecto = self.instance.proyecto
+
         if proyecto and request:
             es_pm = ProyectoUsuario.objects.filter(
                 usuario=request.user,
                 proyecto=proyecto,
                 rol__nombre='Project Manager'
             ).exists()
+
             if not es_pm:
                 raise serializers.ValidationError(
                     'Solo el Project Manager puede crear tareas en este proyecto.'
                 )
 
-        # Recuperar valores de la instancia en caso de PATCH parcial
-        fecha_limite = data.get('fecha_limite')
-        fecha_fin_real = data.get('fecha_finalizacion_real')
 
-        if self.instance:
-            fecha_limite = fecha_limite or self.instance.fecha_limite
-            fecha_fin_real = fecha_fin_real or self.instance.fecha_finalizacion_real
-        
-        # Validación 2: la fecha límite no puede ser en el pasado (crear ni editar)
-        if fecha_limite and fecha_limite < hoy:
-            raise serializers.ValidationError({
-                'fecha_limite': 'La fecha límite no puede ser una fecha pasada.'
-            })
-        
-        # Validación 3: la fecha de finalización real no puede ser anterior a la fecha límite
-        # Sí puede ser posterior (significa que se entregó tarde)
-        if fecha_fin_real and fecha_limite and fecha_fin_real < fecha_limite:
-            raise serializers.ValidationError({
-                'fecha_finalizacion_real': 'La tarea no puede finalizar antes de su fecha límite.'
-            })
+        # ==============================
+        # Validación 2:
+        # Fecha límite
+        # ==============================
+
+        # SOLO validar si viene en la petición
+        if 'fecha_limite' in data:
+
+            fecha_limite = data.get('fecha_limite')
+
+            if fecha_limite and fecha_limite < hoy:
+                print("FALLO FECHA LIMITE VAL 2")
+
+                raise serializers.ValidationError({
+                    'fecha_limite':
+                    'La fecha límite no puede ser una fecha pasada.'
+                })
+
+
+        # ==============================
+        # Validación 3:
+        # Fecha finalización real
+        # ==============================
+
+        if 'fecha_finalizacion_real' in data:
+
+            fecha_fin_real = data.get('fecha_finalizacion_real')
+
+            fecha_limite = data.get(
+                'fecha_limite',
+                self.instance.fecha_limite if self.instance else None
+            )
+
+            if (
+                fecha_fin_real
+                and fecha_limite
+                and fecha_fin_real < fecha_limite
+            ):
+                print("FALLO FECHA LIMITE VAL 3")
+
+                raise serializers.ValidationError({
+                    'fecha_finalizacion_real':
+                    'La tarea no puede finalizar antes de su fecha límite.'
+                })
+
+
+        print("DATOS VALIDANDO:", data)
 
         return data
 

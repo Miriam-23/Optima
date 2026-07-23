@@ -5,6 +5,7 @@ import taskService from '@/services/task.service'
 export const useTareasStore = defineStore('tareas', () => {
 
   const tareas = ref([])
+  const tareaActual = ref(null)
   const filters = ref({
     search:'',
     proyecto:null,
@@ -12,9 +13,22 @@ export const useTareasStore = defineStore('tareas', () => {
     prioridad:null
   })
 
+  function normalizarEstado(task) {
+    const estadoId = Number(task.estado)
+
+    if (estadoId === 1) return 'Completado'
+    if (estadoId === 2) return 'Por hacer'
+    if (estadoId === 3) return 'En progreso'
+    if (estadoId === 4) return 'En revision'
+
+    if (task.nombre_estado === 'En revisión') return 'En revision'
+
+    return task.nombre_estado || ''
+  }
+
   // FILTRADOS
   const filteredTasks = computed(() => {
-    
+
     return tareas.value.filter(task=>{
 
       if(
@@ -25,27 +39,22 @@ export const useTareasStore = defineStore('tareas', () => {
       ){
         return false
       }
+
       if(
-        filters.value.proyecto &&
-        task.proyecto===filters.value.proyecto
+        filters.value.estado &&
+        Number(task.estado) !== Number(filters.value.estado)
       ){
-        } else if(filters.value.proyecto){
-          return false
-        }
-        if(
-          filters.value.estado &&
-          task.nombre_estado!==filters.value.estado
-        ){
-          return false
-        }
-        if(
-          filters.value.prioridad &&
-          task.prioridad!==filters.value.prioridad
-        ){
-          return false
-        }
-        return true
-      
+        return false
+      }
+
+      if(
+        filters.value.prioridad &&
+        task.prioridad!==filters.value.prioridad
+      ){
+        return false
+      }
+
+      return true
     })
 
   })
@@ -53,42 +62,61 @@ export const useTareasStore = defineStore('tareas', () => {
   // COLUMNAS DE FILTROS
   const pendiente = computed(()=>
     filteredTasks.value.filter(
-      t=>t.nombre_estado==="Por hacer"
+      t=>normalizarEstado(t)==="Por hacer"
     )
   )
 
   const progreso = computed(()=>
     filteredTasks.value.filter(
-      t=>t.nombre_estado==="En progreso"
+      t=>normalizarEstado(t)==="En progreso"
     )
   )
 
   const revision = computed(()=>
     filteredTasks.value.filter(
-      t=>t.nombre_estado==="En revision"
+      t=>normalizarEstado(t)==="En revision"
     )
   )
 
   const completado = computed(()=>
     filteredTasks.value.filter(
-      t=>t.nombre_estado==="Completado"
+      t=>normalizarEstado(t)==="Completado"
     )
   )
 
   //FUNCION ACTUALIZAR FILTRO
-  function setFilters(newFilters){
+  async function setFilters(newFilters){
     filters.value={
       ...filters.value,
       ...newFilters
     }
+
+    const params = {}
+
+    if (filters.value.proyecto) {
+      params.proyecto = filters.value.proyecto
+    }
+
+    if (filters.value.estado) {
+      params.estado = filters.value.estado
+    }
+
+    if (filters.value.prioridad) {
+      params.prioridad = filters.value.prioridad
+    }
+
+    await obtenerTareas(params)
   }
+
   // Obtener todas las tareas
   async function obtenerTareas(params={}) {
-    // this.loading=true
-
     try{
       const res = await taskService.getAll(params)
-      tareas.value = res.data
+
+      console.log("Tareas recibidas:", res.data)
+      console.log("Cantidad:", res.data.length)
+
+      tareas.value = Array.isArray(res.data) ? res.data : []
     } finally{
       // this.loading=false
     }
@@ -97,11 +125,9 @@ export const useTareasStore = defineStore('tareas', () => {
 
   // Obtener una tarea
   async function obtenerTarea(id) {
-    // this.loading = true
-
     try {
       const res = await taskService.getById(id)
-      this.tareaActual = res.data
+      tareaActual.value = res.data
     } finally {
       // this.loading = false
     }
@@ -126,7 +152,7 @@ export const useTareasStore = defineStore('tareas', () => {
     }
 
     const res = await taskService.create(payload)
-    this.tareas.push(res.data)
+    tareas.value.push(res.data)
     return res.data
 
   }
@@ -135,13 +161,13 @@ export const useTareasStore = defineStore('tareas', () => {
   async function actualizarTarea(id, data) {
 
     const res = await taskService.update(id, data)
-    const index = this.tareas.findIndex(t => t.id === id)
+    const index = tareas.value.findIndex(t => t.id === id)
 
     if (index !== -1) {
-      this.tareas[index] = res.data
+      tareas.value[index] = res.data
     }
 
-    this.tareaActual = res.data
+    tareaActual.value = res.data
     return res.data
   }
 
@@ -149,16 +175,16 @@ export const useTareasStore = defineStore('tareas', () => {
   async function actualizarParcial(id, data) {
 
     const res = await taskService.patch(id, data)
-    const index = this.tareas.findIndex(t => t.id === id)
+    const index = tareas.value.findIndex(t => t.id === id)
 
     if (index !== -1) {
-      this.tareas[index] = {
-        ...this.tareas[index],
+      tareas.value[index] = {
+        ...tareas.value[index],
         ...res.data
       }
     }
 
-    this.tareaActual = res.data
+    tareaActual.value = res.data
     return res.data
   }
 
@@ -166,13 +192,14 @@ export const useTareasStore = defineStore('tareas', () => {
   async function eliminarTarea(id) {
 
     await taskService.remove(id)
-    this.tareas = this.tareas.filter(
+    tareas.value = tareas.value.filter(
       t => t.id !== id
     )
   }
 
   return{
     tareas,
+    tareaActual,
     filters,
     filteredTasks,
     pendiente,
@@ -181,8 +208,10 @@ export const useTareasStore = defineStore('tareas', () => {
     completado,
     setFilters,
     obtenerTareas,
+    obtenerTarea,
     crearTarea,
     actualizarTarea,
+    actualizarParcial,
     eliminarTarea
   }
 })
