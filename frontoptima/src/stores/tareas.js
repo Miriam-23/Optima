@@ -152,8 +152,11 @@ export const useTareasStore = defineStore('tareas', () => {
     }
 
     const res = await taskService.create(payload)
-    tareas.value.push(res.data)
-    return res.data
+
+    const completa = await taskService.getById(res.data.id)
+
+    tareas.value.push(completa.data)
+    return completa.data
 
   }
 
