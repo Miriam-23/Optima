@@ -65,26 +65,23 @@ class TareaWriteSerializer(serializers.ModelSerializer):
         from projects.models import ProyectoUsuario
 
         request = self.context.get('request')
-        proyecto = data.get('proyecto')
         hoy = timezone.now().date()
 
+        # Validación 1: Todos pueden crear/editar tareas del proyecto, pero solo si pertenecen a él
+        proyecto = data.get(
+            'proyecto',
+            self.instance.proyecto if self.instance else None
+        )
 
-        # Validación 1: solo Project Manager puede crear/editar tareas
-        if self.instance and not proyecto:
-            proyecto = self.instance.proyecto
+        pertenece = ProyectoUsuario.objects.filter(
+            usuario=request.user,
+            proyecto=proyecto
+        ).exists()
 
-        if proyecto and request:
-            es_pm = ProyectoUsuario.objects.filter(
-                usuario=request.user,
-                proyecto=proyecto,
-                rol__nombre='Project Manager'
-            ).exists()
-
-            if not es_pm:
-                raise serializers.ValidationError(
-                    'Solo el Project Manager puede crear tareas en este proyecto.'
-                )
-
+        if not pertenece:
+            raise serializers.ValidationError(
+                "No perteneces a este proyecto."
+            )
 
         # ==============================
         # Validación 2:
