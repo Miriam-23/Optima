@@ -22,7 +22,7 @@
             </v-col>
 
             <!-- CAMPO SELECION DE PROYECTO -->
-            <v-col cols="6">
+            <v-col cols="6" v-if="!editMode">
                 <v-select
                     label="Proyecto"
                     :item-title="'nombre'"

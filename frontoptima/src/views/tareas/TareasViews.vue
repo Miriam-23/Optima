@@ -40,9 +40,15 @@ const dialogDetalle = ref(false)
 const selectedTask = ref(null)
 const tareaSeleccionada = ref(null)
 
-const abrirDetalle = (task)=>{
-  tareaSeleccionada.value = task
+// FUNCION PARA ABRIR EL DETALLE DE LA TAREA
+const abrirDetalle = async(task)=>{
+
+  await store.obtenerTarea(task.id)
+
+  tareaSeleccionada.value = store.tareaActual
+
   dialogDetalle.value = true
+
 }
 
 const {
