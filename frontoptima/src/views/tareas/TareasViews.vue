@@ -59,8 +59,13 @@ function nuevaTarea() {
   dialog.value = true
 }
 
-function editar(task) {
-  selectedTask.value = task
+// FUNCION PARA EDITAR UNA TAREA
+async function editar(task) {
+
+  await store.obtenerTarea(task.id)
+
+  selectedTask.value = store.tareaActual
+
   dialog.value = true
 }
 
@@ -94,6 +99,9 @@ const guardarTarea = async (data) => {
         console.log("RESPUESTA ASIGNACIÓN:", res.data)
       }
 
+      // Linea añadida para actualizar los filtros después de crear una tarea
+      await store.setFilters(store.filters)
+
       await Swal.fire({
         icon: 'success',
         title: 'Tarea creada',
@@ -110,6 +118,9 @@ const guardarTarea = async (data) => {
   } catch (error) {
 
     console.error(error)
+
+    console.log("STATUS:", error.response?.status)
+    console.log("BODY:", error.response?.data)
 
     Swal.fire({
       icon: 'error',

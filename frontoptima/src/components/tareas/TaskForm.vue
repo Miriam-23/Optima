@@ -68,6 +68,8 @@
                     item-value="usuario"
                     v-model="form.responsable"
                     variant="outlined"
+                    :disabled="!form.proyecto"
+                    no-data-text="Selecciona primero un proyecto"
                 />
             </v-col>
 
@@ -196,28 +198,36 @@ const nuevoFormulario = () => ({
 const form=reactive(nuevoFormulario())
 /* CARGAR DATOS AL EDITAR */
 watch(
-    ()=>props.task, (task)=>{
+    () => props.task,
+    async (task) => {
 
-    if(task){
+        if (task) {
 
-        Object.assign(form,{
-            titulo:task.titulo,
-            descripcion:task.descripcion,
-            proyecto:task.proyecto,
-            estado:task.estado,
-            prioridad:task.prioridad,
-            fecha_limite:task.fecha_limite,
-            esfuerzo_estimado:task.esfuerzo_estimado,
-            responsable:
-            task.responsables?.[0]?.usuario_id ?? null
-        })
+            Object.assign(form,{
+                titulo: task.titulo,
+                descripcion: task.descripcion,
+                proyecto: task.proyecto,
+                estado: task.estado,
+                prioridad: task.prioridad,
+                fecha_limite: task.fecha_limite,
+                esfuerzo_estimado: task.esfuerzo_estimado
+            })
 
-    }else{
-        Object.assign(form, nuevoFormulario())
-    }
+            await cargarMiembros()
+
+            form.responsable =
+                task.responsables?.[0]?.usuario_id ?? null
+
+        } else {
+
+            Object.assign(form, nuevoFormulario())
+            miembros.value = []
+
+        }
+
     },
     {
-        immediate:true
+        immediate: true
     }
 )
 
@@ -239,17 +249,23 @@ const limpiar = () => {
 }
 
 watch(
-()=>form.proyecto,
-(valor)=>{
+    () => form.proyecto,
+    async (valor) => {
 
-    if(valor){
-        cargarMiembros()
+        // Si cambia de proyecto, limpiar responsable
+        form.responsable = null
+
+        if (!valor) {
+            miembros.value = []
+            return
+        }
+
+        await cargarMiembros()
+
+    },
+    {
+        immediate: true
     }
-
-},
-{
-    immediate:true
-}
 )
 
 </script>

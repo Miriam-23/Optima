@@ -158,18 +158,29 @@ export const useTareasStore = defineStore('tareas', () => {
   }
 
   // Actualizar tarea
-  async function actualizarTarea(id, data) {
+async function actualizarTarea(id, data) {
 
-    const res = await taskService.update(id, data)
-    const index = tareas.value.findIndex(t => t.id === id)
+    await taskService.patch(id, data)
 
-    if (index !== -1) {
-      tareas.value[index] = res.data
+    const actualizada = await taskService.getById(id)
+
+    console.log("TAREA DESPUÉS DEL GET:", actualizada.data)
+    console.log("RESPONSABLES:", actualizada.data.responsables)
+
+    const index = tareas.value.findIndex(
+        t => t.id === id
+    )
+
+    console.log("INDEX EN STORE:", index)
+
+    if(index !== -1){
+        tareas.value[index] = actualizada.data
     }
 
-    tareaActual.value = res.data
-    return res.data
-  }
+    tareaActual.value = actualizada.data
+
+    return actualizada.data
+}
 
   // Actualizar parcialmente
   async function actualizarParcial(id, data) {
