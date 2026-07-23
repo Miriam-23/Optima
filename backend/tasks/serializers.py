@@ -93,13 +93,14 @@ class TareaWriteSerializer(serializers.ModelSerializer):
 
             fecha_limite = data.get('fecha_limite')
 
-            if fecha_limite and fecha_limite < hoy:
-                print("FALLO FECHA LIMITE VAL 2")
+            # Solo bloquear fechas pasadas al crear
+            if not self.instance:
 
-                raise serializers.ValidationError({
-                    'fecha_limite':
-                    'La fecha límite no puede ser una fecha pasada.'
-                })
+                if fecha_limite and fecha_limite < hoy:
+                    raise serializers.ValidationError({
+                        'fecha_limite':
+                        'La fecha límite no puede ser una fecha pasada.'
+                    })
 
 
         # ==============================
@@ -121,7 +122,6 @@ class TareaWriteSerializer(serializers.ModelSerializer):
                 and fecha_limite
                 and fecha_fin_real < fecha_limite
             ):
-                print("FALLO FECHA LIMITE VAL 3")
 
                 raise serializers.ValidationError({
                     'fecha_finalizacion_real':
