@@ -50,6 +50,22 @@ class TareaViewSet(viewsets.ModelViewSet):
             tipo='tarea_asignada',
             mensaje=f'Se creó la tarea "{tarea.titulo}" en el proyecto {tarea.proyecto.nombre}.'
         )
+    
+    def perform_update(self, serializer):
+        tarea = serializer.save()
+
+        responsable = self.request.data.get('responsable')
+
+        if responsable:
+
+            TareaUsuario.objects.filter(
+                tarea=tarea
+            ).delete()
+
+            TareaUsuario.objects.create(
+                tarea=tarea,
+                usuario_id=responsable
+            )
 
 class AsignacionTareaViewSet(viewsets.ModelViewSet):
     queryset = TareaUsuario.objects.all()

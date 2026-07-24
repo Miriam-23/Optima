@@ -1,10 +1,18 @@
 from .models import Notificacion
 from projects.models import ProyectoUsuario
 from .emails import enviar_correo_notificacion
+from threading import Thread
+
+def enviar_correo_async(usuario, tipo, mensaje):
+    Thread(
+        target=enviar_correo_notificacion,
+        args=(usuario, tipo, mensaje),
+        daemon=True
+    ).start()
 
 def notificar_miembro(usuario, tipo, mensaje):
     Notificacion.objects.create(usuario=usuario, tipo=tipo, mensaje=mensaje)
-    enviar_correo_notificacion(usuario, tipo, mensaje)  
+    enviar_correo_async(usuario, tipo, mensaje)
 
 def notificar_project_managers(proyecto, tipo, mensaje, excluir_usuario=None):
     pms = ProyectoUsuario.objects.filter(

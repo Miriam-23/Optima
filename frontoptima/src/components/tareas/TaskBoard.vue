@@ -12,11 +12,14 @@
                 :title="column.title"
                 :icon="column.icon"
                 :color="column.color"
+                :status="column.status"
                 :tasks="column.tasks"
 
                 @open="$emit('open',$event)"
                 @edit="$emit('edit',$event)"
                 @delete="$emit('delete',$event)"
+                @drag-start="handleDragStart"
+                @drop="handleDrop"
             />
 
         </v-col>
@@ -25,8 +28,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import TaskColumn from '@/components/tareas/TaskColumn.vue'
+import { useTareasStore } from '@/stores/tareas'
 
 defineEmits([
     'open',
@@ -43,40 +47,72 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  revision: {
+  bloqueado: {
     type: Array,
     default: () => []
   },
-  completado: {
+  hecho: {
     type: Array,
     default: () => []
   }
 })
 
+const store = useTareasStore()
+const draggedTask = ref(null)
+
+const statusMap = {
+    'Pendiente': 1,
+    'En progreso': 2,
+    'Bloqueado': 3,
+    'Hecho': 4
+}
+
+function handleDragStart(task) {
+    draggedTask.value = task
+}
+
+async function handleDrop(status) {
+    if (!draggedTask.value) return
+
+    const nuevoEstado = statusMap[status]
+
+    if (!nuevoEstado || nuevoEstado === draggedTask.value.estado) {
+        draggedTask.value = null
+        return
+    }
+
+    await store.actualizarParcial(draggedTask.value.id, { estado: nuevoEstado })
+    draggedTask.value = null
+}
+
 const columns = computed(() => [
     {
-        title: 'Por hacer',
+        title:'Pendiente',
         icon: 'mdi-clipboard-outline',
         color: 'red',
+        status:'Pendiente',
         tasks: props.pendiente
     },
     {
         title: 'En progreso',
         icon: 'mdi-progress-clock',
         color: 'orange',
+        status: 'En progreso',
         tasks: props.progreso
     },
     {
-        title: 'En revisión',
+        title:'Bloqueado',
         icon: 'mdi-eye-check',
         color: 'blue',
-        tasks: props.revision
+        status:'Bloqueado',
+        tasks: props.bloqueado
     },
     {
-        title: 'Terminadas',
+        title:'Hecho',
         icon: 'mdi-check-circle',
         color: 'green',
-        tasks: props.completado
+        status:'Hecho',
+        tasks: props.hecho
     }
 ])
 

@@ -6,8 +6,8 @@
   <TaskBoard 
     :pendiente="pendiente"
     :progreso="progreso"
-    :revision="revision"
-    :completado="completado"
+    :bloqueado="bloqueado"
+    :hecho="hecho"
     @open="abrirDetalle"
     @edit="editar" 
     @delete="confirmarEliminar"
@@ -40,16 +40,23 @@ const dialogDetalle = ref(false)
 const selectedTask = ref(null)
 const tareaSeleccionada = ref(null)
 
-const abrirDetalle = (task)=>{
-  tareaSeleccionada.value = task
+// FUNCION PARA ABRIR EL DETALLE DE LA TAREA
+const abrirDetalle = async(task)=>{
+
+  await store.obtenerTarea(task.id)
+
+  tareaSeleccionada.value = store.tareaActual
+
   dialogDetalle.value = true
+
 }
 
+// De acuerdo a la BD
 const {
   pendiente,
   progreso,
-  revision,
-  completado
+  bloqueado,
+  hecho
 } = storeToRefs(store)
 
 const { setFilters } = store
@@ -59,8 +66,13 @@ function nuevaTarea() {
   dialog.value = true
 }
 
-function editar(task) {
-  selectedTask.value = task
+// FUNCION PARA EDITAR UNA TAREA
+async function editar(task) {
+
+  await store.obtenerTarea(task.id)
+
+  selectedTask.value = store.tareaActual
+
   dialog.value = true
 }
 
@@ -94,6 +106,9 @@ const guardarTarea = async (data) => {
         console.log("RESPUESTA ASIGNACIÓN:", res.data)
       }
 
+      // Linea añadida para actualizar los filtros después de crear una tarea
+      await store.setFilters(store.filters)
+
       await Swal.fire({
         icon: 'success',
         title: 'Tarea creada',
@@ -110,6 +125,9 @@ const guardarTarea = async (data) => {
   } catch (error) {
 
     console.error(error)
+
+    console.log("STATUS:", error.response?.status)
+    console.log("BODY:", error.response?.data)
 
     Swal.fire({
       icon: 'error',
@@ -160,14 +178,12 @@ const confirmarEliminar = async (task) => {
 }
 
 onMounted(async () => {
-  await store.obtenerTareas()
+  const initialFilters = {}
 
-  if(route.query.proyecto){
-
-    store.setFilters({
-      proyecto:Number(route.query.proyecto)
-    })
-
+  if (route.query.proyecto) {
+    initialFilters.proyecto = Number(route.query.proyecto)
   }
+
+  await store.setFilters(initialFilters)
 })
 </script>

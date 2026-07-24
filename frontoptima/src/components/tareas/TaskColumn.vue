@@ -1,5 +1,11 @@
 <template>
-  <v-card class="task-column pa-3" elevation="1" rounded="lg"  >
+  <v-card
+    class="task-column pa-3"
+    elevation="1"
+    rounded="lg"
+    @dragover.prevent
+    @drop="$emit('drop', status)"
+  >
 
     <!-- Header -->
     <div class="d-flex justify-space-between align-center mb-4">
@@ -32,6 +38,7 @@
       @open="$emit('open', $event)"
       @edit="$emit('edit', $event)"
       @delete="$emit('delete', $event)"
+      @drag-start="$emit('drag-start', $event)"
     />
 
     <!-- Sin tareas -->
@@ -59,6 +66,7 @@ defineProps({
   title: String,
   icon: String,
   color: String,
+  status: String,
   tasks: {
     type: Array,
     default: () => []
@@ -68,7 +76,9 @@ defineProps({
 defineEmits([
   'open',
   'edit',
-  'delete'
+  'delete',
+  'drag-start',
+  'drop'
 ])
 
 </script>

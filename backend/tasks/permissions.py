@@ -16,22 +16,21 @@ def es_miembro(usuario, proyecto):
 
 # ── PERMISO PARA TAREAS ───────────────────────
 class TareaPermiso(BasePermission):
+
     def has_permission(self, request, view):
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
+
         usuario = request.user
         proyecto = obj.proyecto
-        # Ver y comentar: cualquier miembro
-        if view.action in ['retrieve']:
-            return es_miembro(usuario, proyecto)
-        # Cambiar estado de su propia tarea: miembro asignado
-        if view.action in ['partial_update']:
-            es_responsable = obj.responsables.filter(usuario=usuario).exists()
-            if es_responsable:
-                return True
-        # Crear, editar completo, eliminar: solo PM
-        return es_project_manager(usuario, proyecto)
+
+        # Eliminar sigue siendo exclusivo del PM
+        if view.action == 'destroy':
+            return es_project_manager(usuario, proyecto)
+
+        # Todo lo demás requiere pertenecer al proyecto
+        return es_miembro(usuario, proyecto)
 
 # ── PERMISO PARA COMENTARIOS ──────────────────
 class ComentarioPermiso(BasePermission):

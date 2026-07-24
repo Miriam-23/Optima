@@ -3,8 +3,8 @@ import api from './api'
 export default {
 
   // Obtener todas las tareas
-  getAll() {
-    return api.get('/api/tasks/')
+  getAll(params = {}) {
+    return api.get('/api/tasks/', { params })
   },
 
   // Obtener las tareas de un proyecto

@@ -5,16 +5,21 @@ import taskService from '@/services/task.service'
 export const useTareasStore = defineStore('tareas', () => {
 
   const tareas = ref([])
+  const tareaActual = ref(null)
   const filters = ref({
     search:'',
     proyecto:null,
     estado:null,
     prioridad:null
   })
-
+  
+  // De acuerdo a la BD, los estados son:
+  function normalizarEstado(task) {
+      return task.nombre_estado || ''
+  }
   // FILTRADOS
   const filteredTasks = computed(() => {
-    
+
     return tareas.value.filter(task=>{
 
       if(
@@ -25,70 +30,84 @@ export const useTareasStore = defineStore('tareas', () => {
       ){
         return false
       }
+
       if(
-        filters.value.proyecto &&
-        task.proyecto===filters.value.proyecto
+        filters.value.estado &&
+        Number(task.estado) !== Number(filters.value.estado)
       ){
-        } else if(filters.value.proyecto){
-          return false
-        }
-        if(
-          filters.value.estado &&
-          task.nombre_estado!==filters.value.estado
-        ){
-          return false
-        }
-        if(
-          filters.value.prioridad &&
-          task.prioridad!==filters.value.prioridad
-        ){
-          return false
-        }
-        return true
-      
+        return false
+      }
+
+      if(
+        filters.value.prioridad &&
+        task.prioridad!==filters.value.prioridad
+      ){
+        return false
+      }
+
+      return true
     })
 
   })
 
   // COLUMNAS DE FILTROS
-  const pendiente = computed(()=>
-    filteredTasks.value.filter(
-      t=>t.nombre_estado==="Por hacer"
-    )
+  const pendiente = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "Pendiente"
+      )
   )
 
-  const progreso = computed(()=>
-    filteredTasks.value.filter(
-      t=>t.nombre_estado==="En progreso"
-    )
+  const progreso = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "En progreso"
+      )
   )
 
-  const revision = computed(()=>
-    filteredTasks.value.filter(
-      t=>t.nombre_estado==="En revision"
-    )
+  const bloqueado = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "Bloqueado"
+      )
   )
 
-  const completado = computed(()=>
-    filteredTasks.value.filter(
-      t=>t.nombre_estado==="Completado"
-    )
+  const hecho = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "Hecho"
+      )
   )
 
   //FUNCION ACTUALIZAR FILTRO
-  function setFilters(newFilters){
+  async function setFilters(newFilters){
     filters.value={
       ...filters.value,
       ...newFilters
     }
+
+    const params = {}
+
+    if (filters.value.proyecto) {
+      params.proyecto = filters.value.proyecto
+    }
+
+    if (filters.value.estado) {
+      params.estado = filters.value.estado
+    }
+
+    if (filters.value.prioridad) {
+      params.prioridad = filters.value.prioridad
+    }
+
+    await obtenerTareas(params)
   }
+
   // Obtener todas las tareas
   async function obtenerTareas(params={}) {
-    // this.loading=true
-
     try{
       const res = await taskService.getAll(params)
-      tareas.value = res.data
+
+      console.log("Tareas recibidas:", res.data)
+      console.log("Cantidad:", res.data.length)
+
+      tareas.value = Array.isArray(res.data) ? res.data : []
     } finally{
       // this.loading=false
     }
@@ -97,11 +116,9 @@ export const useTareasStore = defineStore('tareas', () => {
 
   // Obtener una tarea
   async function obtenerTarea(id) {
-    // this.loading = true
-
     try {
       const res = await taskService.getById(id)
-      this.tareaActual = res.data
+      tareaActual.value = res.data
     } finally {
       // this.loading = false
     }
@@ -126,63 +143,81 @@ export const useTareasStore = defineStore('tareas', () => {
     }
 
     const res = await taskService.create(payload)
-    this.tareas.push(res.data)
-    return res.data
+
+    const completa = await taskService.getById(res.data.id)
+
+    tareas.value.push(completa.data)
+    return completa.data
 
   }
 
   // Actualizar tarea
-  async function actualizarTarea(id, data) {
+async function actualizarTarea(id, data) {
 
-    const res = await taskService.update(id, data)
-    const index = this.tareas.findIndex(t => t.id === id)
+    await taskService.patch(id, data)
 
-    if (index !== -1) {
-      this.tareas[index] = res.data
+    const actualizada = await taskService.getById(id)
+
+    console.log("TAREA DESPUÉS DEL GET:", actualizada.data)
+    console.log("RESPONSABLES:", actualizada.data.responsables)
+
+    const index = tareas.value.findIndex(
+        t => t.id === id
+    )
+
+    console.log("INDEX EN STORE:", index)
+
+    if(index !== -1){
+        tareas.value[index] = actualizada.data
     }
 
-    this.tareaActual = res.data
-    return res.data
-  }
+    tareaActual.value = actualizada.data
+
+    return actualizada.data
+}
 
   // Actualizar parcialmente
   async function actualizarParcial(id, data) {
 
-    const res = await taskService.patch(id, data)
-    const index = this.tareas.findIndex(t => t.id === id)
+      await taskService.patch(id, data)
 
-    if (index !== -1) {
-      this.tareas[index] = {
-        ...this.tareas[index],
-        ...res.data
+      const completa = await taskService.getById(id)
+
+      const index = tareas.value.findIndex(t => t.id === id)
+
+      if (index !== -1) {
+          tareas.value[index] = completa.data
       }
-    }
 
-    this.tareaActual = res.data
-    return res.data
+      tareaActual.value = completa.data
+
+      return completa.data
   }
 
   // Eliminar
   async function eliminarTarea(id) {
 
     await taskService.remove(id)
-    this.tareas = this.tareas.filter(
+    tareas.value = tareas.value.filter(
       t => t.id !== id
     )
   }
 
   return{
     tareas,
+    tareaActual,
     filters,
     filteredTasks,
     pendiente,
     progreso,
-    revision,
-    completado,
+    bloqueado,
+    hecho,
     setFilters,
     obtenerTareas,
+    obtenerTarea,
     crearTarea,
     actualizarTarea,
+    actualizarParcial,
     eliminarTarea
   }
 })

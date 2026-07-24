@@ -38,7 +38,7 @@ Optima — Gestión de Proyectos
 
 def enviar_correo_verificacion(usuario, token):
     # Construye el enlace de verificación usando el token
-    enlace = f'http://localhost:5173/verificar/{token}'
+    enlace = f'{settings.FRONTEND_URL}/verificar/{token}'
     asunto = 'Verifica tu cuenta — Optima'
     cuerpo = f"""
 Hola {usuario.username},

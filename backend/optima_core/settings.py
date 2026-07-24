@@ -153,8 +153,9 @@ STATIC_URL = 'static/'
 
 # Durante desarrollo, permitimos el origen de Vue
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # Vite (Vue)
-    'http://localhost:3000',  # Por si usa otro puerto
+    os.getenv('FRONTEND_URL'),  # Vite (Vue)
+    # 'https://b5jl97j5-5173.usw3.devtunnels.ms', 
+    # 'https://b5jl97j5-8000.usw3.devtunnels.ms'
 ]
 
 # Configuración para enviar correo

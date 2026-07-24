@@ -40,6 +40,8 @@
         <v-select
           v-model="filters.estado"
           :items="estados"
+          item-title="nombre"
+          item-value="id"
           label="Estado"
           variant="outlined"
           density="comfortable"
@@ -81,7 +83,7 @@
 </template>
 
 <script setup>
-import { computed, watch, reactive } from 'vue'
+import { computed, watch, reactive, onMounted } from 'vue'
 import { useProyectosStore } from '@/stores/proyectos'
 
 const emit = defineEmits([
@@ -92,11 +94,15 @@ const emit = defineEmits([
 const proyectosStore = useProyectosStore()
 const proyectos = computed(() => proyectosStore.proyectos)
 
+onMounted(() => {
+  proyectosStore.obtenerProyectos()
+})
+
 const estados=[
-  'Por hacer',
-  'En progreso',
-  'En revision',
-  'Completado'
+  { id: 2, nombre: 'Por hacer' },
+  { id: 3, nombre: 'En progreso' },
+  { id: 4, nombre: 'En revision' },
+  { id: 1, nombre: 'Completado' }
 ]
 
 const prioridades = [
