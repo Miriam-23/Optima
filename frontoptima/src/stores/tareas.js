@@ -12,20 +12,11 @@ export const useTareasStore = defineStore('tareas', () => {
     estado:null,
     prioridad:null
   })
-
+  
+  // De acuerdo a la BD, los estados son:
   function normalizarEstado(task) {
-    const estadoId = Number(task.estado)
-
-    if (estadoId === 1) return 'Completado'
-    if (estadoId === 2) return 'Por hacer'
-    if (estadoId === 3) return 'En progreso'
-    if (estadoId === 4) return 'En revision'
-
-    if (task.nombre_estado === 'En revisión') return 'En revision'
-
-    return task.nombre_estado || ''
+      return task.nombre_estado || ''
   }
-
   // FILTRADOS
   const filteredTasks = computed(() => {
 
@@ -60,28 +51,28 @@ export const useTareasStore = defineStore('tareas', () => {
   })
 
   // COLUMNAS DE FILTROS
-  const pendiente = computed(()=>
-    filteredTasks.value.filter(
-      t=>normalizarEstado(t)==="Por hacer"
-    )
+  const pendiente = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "Pendiente"
+      )
   )
 
-  const progreso = computed(()=>
-    filteredTasks.value.filter(
-      t=>normalizarEstado(t)==="En progreso"
-    )
+  const progreso = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "En progreso"
+      )
   )
 
-  const revision = computed(()=>
-    filteredTasks.value.filter(
-      t=>normalizarEstado(t)==="En revision"
-    )
+  const bloqueado = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "Bloqueado"
+      )
   )
 
-  const completado = computed(()=>
-    filteredTasks.value.filter(
-      t=>normalizarEstado(t)==="Completado"
-    )
+  const hecho = computed(() =>
+      filteredTasks.value.filter(
+          t => normalizarEstado(t) === "Hecho"
+      )
   )
 
   //FUNCION ACTUALIZAR FILTRO
@@ -188,18 +179,19 @@ async function actualizarTarea(id, data) {
   // Actualizar parcialmente
   async function actualizarParcial(id, data) {
 
-    const res = await taskService.patch(id, data)
-    const index = tareas.value.findIndex(t => t.id === id)
+      await taskService.patch(id, data)
 
-    if (index !== -1) {
-      tareas.value[index] = {
-        ...tareas.value[index],
-        ...res.data
+      const completa = await taskService.getById(id)
+
+      const index = tareas.value.findIndex(t => t.id === id)
+
+      if (index !== -1) {
+          tareas.value[index] = completa.data
       }
-    }
 
-    tareaActual.value = res.data
-    return res.data
+      tareaActual.value = completa.data
+
+      return completa.data
   }
 
   // Eliminar
@@ -218,8 +210,8 @@ async function actualizarTarea(id, data) {
     filteredTasks,
     pendiente,
     progreso,
-    revision,
-    completado,
+    bloqueado,
+    hecho,
     setFilters,
     obtenerTareas,
     obtenerTarea,

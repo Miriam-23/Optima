@@ -141,23 +141,12 @@ const emit=defineEmits([
     'save'
 ])
 
-const estados=[
-    {
-    id:1,
-    nombre:"Completado"
-    },
-    {
-    id:2,
-    nombre:"Por hacer"
-    },
-    {
-    id:3,
-    nombre:"En progreso"
-    },
-    {
-    id:4,
-    nombre:"En revision"
-    }
+// Estados de la tarea en la BD
+const estados = [
+  { id: 1, nombre: "Pendiente" },
+  { id: 2, nombre: "En progreso" },
+  { id: 3, nombre: "Bloqueado" },
+  { id: 4, nombre: "Hecho" }
 ]
 
 const prioridades=[

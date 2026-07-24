@@ -47,11 +47,11 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  revision: {
+  bloqueado: {
     type: Array,
     default: () => []
   },
-  completado: {
+  hecho: {
     type: Array,
     default: () => []
   }
@@ -61,10 +61,10 @@ const store = useTareasStore()
 const draggedTask = ref(null)
 
 const statusMap = {
-    'Por hacer': 2,
-    'En progreso': 3,
-    'En revision': 4,
-    'Completado': 1
+    'Pendiente': 1,
+    'En progreso': 2,
+    'Bloqueado': 3,
+    'Hecho': 4
 }
 
 function handleDragStart(task) {
@@ -87,10 +87,10 @@ async function handleDrop(status) {
 
 const columns = computed(() => [
     {
-        title: 'Por hacer',
+        title:'Pendiente',
         icon: 'mdi-clipboard-outline',
         color: 'red',
-        status: 'Por hacer',
+        status:'Pendiente',
         tasks: props.pendiente
     },
     {
@@ -101,18 +101,18 @@ const columns = computed(() => [
         tasks: props.progreso
     },
     {
-        title: 'En revision',
+        title:'Bloqueado',
         icon: 'mdi-eye-check',
         color: 'blue',
-        status: 'En revision',
-        tasks: props.revision
+        status:'Bloqueado',
+        tasks: props.bloqueado
     },
     {
-        title: 'Completado',
+        title:'Hecho',
         icon: 'mdi-check-circle',
         color: 'green',
-        status: 'Completado',
-        tasks: props.completado
+        status:'Hecho',
+        tasks: props.hecho
     }
 ])
 

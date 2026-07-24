@@ -6,8 +6,8 @@
   <TaskBoard 
     :pendiente="pendiente"
     :progreso="progreso"
-    :revision="revision"
-    :completado="completado"
+    :bloqueado="bloqueado"
+    :hecho="hecho"
     @open="abrirDetalle"
     @edit="editar" 
     @delete="confirmarEliminar"
@@ -51,11 +51,12 @@ const abrirDetalle = async(task)=>{
 
 }
 
+// De acuerdo a la BD
 const {
   pendiente,
   progreso,
-  revision,
-  completado
+  bloqueado,
+  hecho
 } = storeToRefs(store)
 
 const { setFilters } = store
