@@ -1,6 +1,6 @@
 from .client import client
 from .prompts import SYSTEM_PROMPT_BASE
-from .context import obtener_contexto_proyectos
+from .context import obtener_contexto_proyectos, obtener_contexto_tareas
 
 
 class ChatbotService:
@@ -13,8 +13,10 @@ class ChatbotService:
             contexto = "Sin información disponible."
 
             if usuario:
-                contexto = obtener_contexto_proyectos(usuario)
+                contexto_proyectos  = obtener_contexto_proyectos(usuario)
+                contexto_tareas = obtener_contexto_tareas(usuario)
 
+                contexto = f'{contexto_proyectos}\n\n{contexto_tareas}'
 
             system_prompt = SYSTEM_PROMPT_BASE.format(
                 contexto=contexto
