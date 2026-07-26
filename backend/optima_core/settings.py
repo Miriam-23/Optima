@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'projects',
     'tasks',
     'reports',
-    'notifications'
+    'notifications',
+    'chatbot'
 ]
 
 REST_FRAMEWORK = {
@@ -151,9 +152,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+FRONTEND_URL = os.getenv('FRONTEND_URL')
+BACKEND_URL = os.getenv('BACKEND_URL')
+
 # Durante desarrollo, permitimos el origen de Vue
 CORS_ALLOWED_ORIGINS = [
-    os.getenv('FRONTEND_URL'),  # Vite (Vue)
+    FRONTEND_URL,  # Vite (Vue)
     # 'https://b5jl97j5-5173.usw3.devtunnels.ms', 
     # 'https://b5jl97j5-8000.usw3.devtunnels.ms'
 ]
@@ -166,3 +170,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = f'Optima <{os.getenv("EMAIL_HOST_USER")}>'
+
+# Configuración para usar el modelo de Groq
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')
