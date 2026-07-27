@@ -63,15 +63,15 @@ export const useTareasStore = defineStore('tareas', () => {
       )
   )
 
-  const bloqueado = computed(() =>
+  const en_revision = computed(() =>
       filteredTasks.value.filter(
-          t => normalizarEstado(t) === "Bloqueado"
+          t => normalizarEstado(t) === "En revisión"
       )
   )
 
-  const hecho = computed(() =>
+  const completada = computed(() =>
       filteredTasks.value.filter(
-          t => normalizarEstado(t) === "Hecho"
+          t => normalizarEstado(t) === "Completada"
       )
   )
 
@@ -210,8 +210,8 @@ async function actualizarTarea(id, data) {
     filteredTasks,
     pendiente,
     progreso,
-    bloqueado,
-    hecho,
+    en_revision,
+    completada,
     setFilters,
     obtenerTareas,
     obtenerTarea,

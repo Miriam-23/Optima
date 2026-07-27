@@ -47,11 +47,11 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  bloqueado: {
+  en_revision: {
     type: Array,
     default: () => []
   },
-  hecho: {
+  completada: {
     type: Array,
     default: () => []
   }
@@ -63,8 +63,8 @@ const draggedTask = ref(null)
 const statusMap = {
     'Pendiente': 1,
     'En progreso': 2,
-    'Bloqueado': 3,
-    'Hecho': 4
+    'En revisión': 3,
+    'Completada': 4
 }
 
 function handleDragStart(task) {
@@ -101,18 +101,18 @@ const columns = computed(() => [
         tasks: props.progreso
     },
     {
-        title:'Bloqueado',
+        title:'En Revisión',
         icon: 'mdi-eye-check',
         color: 'blue',
-        status:'Bloqueado',
-        tasks: props.bloqueado
+        status:'En revisión',
+        tasks: props.en_revision
     },
     {
-        title:'Hecho',
+        title:'Completada',
         icon: 'mdi-check-circle',
         color: 'green',
-        status:'Hecho',
-        tasks: props.hecho
+        status:'Completada',
+        tasks: props.completada
     }
 ])
 

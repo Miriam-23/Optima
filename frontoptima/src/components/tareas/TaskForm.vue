@@ -145,8 +145,8 @@ const emit=defineEmits([
 const estados = [
   { id: 1, nombre: "Pendiente" },
   { id: 2, nombre: "En progreso" },
-  { id: 3, nombre: "Bloqueado" },
-  { id: 4, nombre: "Hecho" }
+  { id: 3, nombre: "En revisión" },
+  { id: 4, nombre: "Completada" }
 ]
 
 const prioridades=[
