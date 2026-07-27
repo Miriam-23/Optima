@@ -1,8 +1,8 @@
 <template>
   <v-card
-    class="task-card pa-2"
+    class="task-card pa-3"
     elevation="3"
-    rounded="small"
+    rounded="lg"
     draggable="true"
     @dragstart="$emit('drag-start', task)"
 
@@ -10,7 +10,7 @@
     <!-- CABECERA -->
     <div class="d-flex justify-space-between align-center mb-3">
 
-      <v-chip :color="priority.color" size="small" variant="tonal">
+      <v-chip :color="priority.color" size="small" class="priority-pill">
         {{ priority.text }}
       </v-chip>
 
@@ -38,7 +38,7 @@
           <v-list-item
             prepend-icon="mdi-delete"
             title="Eliminar"
-            @click="$emit('delete', props.task)"
+            @click="$emit('delete', task)"
           />
 
         </v-list>
@@ -51,50 +51,30 @@
       {{ task.titulo }}
     </div>
 
-    <!-- FOOTER -->
-    <div class="d-flex justify-space-between align-center mt-4">
+    <!-- FOOTER COMPACTO -->
+    <div class="card-footer d-flex justify-space-between align-center mt-4">
 
-      <!-- Información -->
-      <v-row class="flex-grow-1" no-gutters>
-        <v-col cols="6">
-          <div class="text-caption text-medium-emphasis">
-            Responsable
-          </div>
-
-          <div class="text-body-2 font-weight-medium">
-            {{ task.responsables?.[0]?.nombre ?? 'Sin asignar' }}
-          </div>
-        </v-col>
-
-        <v-col cols="6">
-          <div class="text-caption text-medium-emphasis">
-            Fecha límite
-          </div>
-
-          <div class="text-body-2">
-            {{ task.fecha_limite }}
-          </div>
-        </v-col>
-      </v-row>
-
-      <!-- Iconos -->
-      <div class="d-flex align-center ga-4 ml-4">
-        <div class="d-flex align-center">
-          <v-icon size="18">mdi-comment-outline</v-icon>
-
-          <span class="text-caption ml-1">
-            {{ task.total_comentarios ?? 0 }}
-          </span>
+      <div class="footer-left d-flex align-center">
+        <div class="d-flex align-center mr-4">
+          <v-icon size="16">mdi-calendar-outline</v-icon>
+          <span class="text-caption ml-1">{{ task.fecha_limite || '-' }}</span>
         </div>
 
-        <!-- ADJUNTAR ARCHIVOS (POR IMPLEMENTAR / MEJORA) -->
-        <!-- <div class="d-flex align-center">
-          <v-icon size="18">mdi-paperclip</v-icon>
+        <div class="d-flex align-center">
+          <v-icon size="16">mdi-comment-outline</v-icon>
+          <span class="text-caption ml-1">{{ task.total_comentarios ?? 0 }}</span>
+        </div>
+      </div>
 
-          <span class="text-caption ml-1">
-            {{ task.adjuntos ?? 0 }}
-          </span>
-        </div> -->
+      <div class="footer-right d-flex align-center">
+        <v-avatar size="28" class="ml-2">
+          <template v-if="hasAvatar">
+            <img :src="responsableImagen" alt="avatar" />
+          </template>
+          <template v-else>
+            <span class="avatar-initials">{{ initials }}</span>
+          </template>
+        </v-avatar>
       </div>
 
     </div>
@@ -127,36 +107,78 @@ const priority = computed(() => {
   }
 })
 
+const responsable = computed(() => props.task.responsables?.[0] ?? null)
+
+const initials = computed(() => {
+  const nombre = responsable.value?.nombre || ''
+  if (!nombre) return ''
+  const parts = nombre.trim().split(/\s+/)
+  const first = parts[0]?.charAt(0) || ''
+  const second = parts[1]?.charAt(0) || ''
+  return (first + second).toUpperCase()
+})
+
+const hasAvatar = computed(() => Boolean(responsable.value?.imagen || responsable.value?.avatar || responsable.value?.foto))
+
+const responsableImagen = computed(() => responsable.value?.imagen || responsable.value?.avatar || responsable.value?.foto || '')
+
 </script>
 
 <style scoped>
 
 .task-card{
   cursor:pointer;
-  transition:.25s;
-  border-left:5px solid rgb(var(--v-theme-primary));
+  transition: transform .18s ease, box-shadow .18s ease;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.04);
+  border-left: 4px solid rgba(0,0,0,0.04);
 }
 
 .task-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 12px 30px rgba(0,0,0,.12);
+  transform: scale(1.02);
+  box-shadow: 0 18px 36px rgba(15,23,42,0.08);
 }
 
 .task-title{
-  font-size:1.15rem;
+  font-size:1.05rem;
   font-weight:700;
   display:-webkit-box;
   -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
+  word-break: normal;
 }
 
-.description{
-  color:#64748B;
-  display:-webkit-box;
-  -webkit-line-clamp:3;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-  min-height:64px;
+.priority-pill{
+  border-radius: 999px;
+  color: white;
+  padding: 0 8px;
+  text-transform: uppercase;
+  font-weight: 600;
 }
+
+.card-footer{
+  width:100%;
+  align-items:center;
+}
+
+.footer-left .text-caption{
+  color: rgba(15,23,42,0.6);
+}
+
+.avatar-initials{
+  display:inline-flex;
+  width:100%;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  color: #fff;
+  background: linear-gradient(135deg,#64748B,#94A3B8);
+  border-radius: 50%;
+  display:block;
+  line-height:28px;
+}
+
 </style>
