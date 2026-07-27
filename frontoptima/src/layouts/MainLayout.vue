@@ -3,56 +3,32 @@
 
     <!-- TOP BAR -->
     <v-app-bar color="primary" elevation="2">
-        <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <!-- BOTON DRAWER -->
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
+        <v-img :src="logo_dark" max-height="80" max-width="100" contain />
+      <v-spacer />
 
-          <v-img :src="logo_dark" max-height="80" max-width="100" contain />
+      <!-- BOTON DE NOTIFICCIONES -->
+      <NotificationsMenu />
 
-        <v-spacer />
+      <!-- BOTON DE TEMA -->
+      <v-btn icon @click="toggleTheme">
+        <v-icon>{{ theme.global.name.value === 'light' ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
+      </v-btn>
 
-        <v-btn icon @click="toggleTheme">
-          <v-icon>{{ theme.global.name.value === 'light' ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
-        </v-btn>
-
-        <NotificationsMenu />
-
-        <v-btn icon @click="logout">
-          <v-icon>mdi-logout</v-icon>
-        </v-btn>
+      <!-- BOTON CIERRE DE SESION -->
+      <v-btn icon @click="logout">
+        <v-icon>mdi-logout</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <!-- SIDEBAR -->
     <v-navigation-drawer v-model="drawer" color="surface" app>     
-      <!-- Perfil -->
-      <!-- <div class="pa-5 text-center">
-
-        <v-avatar size="80" color="primary">
-          <v-img
-            v-if="authStore.user?.avatar_url"
-            :src="authStore.user.avatar_url"
-          />
-
-          <span
-            v-else
-            class="text-h5 font-weight-bold text-white"
-          >
-            {{ iniciales }}
-          </span>
-        </v-avatar>
-
-        <div class="mt-3 text-subtitle-1 font-weight-bold">
-          {{ authStore.user?.username }}
-        </div>
-
-        <div class="text-caption text-medium-emphasis">
-          {{ authStore.user?.email }}
-        </div>
-
-      </div> -->
-
+      
       <v-divider /> 
+
       <!-- MODULOS DE NAVEGACIÓN -->
       <v-list nav>
-
         <!-- Perfil -->
         <v-list-item to="/perfil">
           <template #prepend>
@@ -67,13 +43,9 @@
             </v-avatar>
           </template>
 
-          <v-list-item-title>
-            {{ authStore.user?.username }}
-          </v-list-item-title>
+          <v-list-item-title> {{ authStore.user?.username }} </v-list-item-title>
 
-          <v-list-item-subtitle>
-            Mi perfil
-          </v-list-item-subtitle>
+          <v-list-item-subtitle>Mi perfil</v-list-item-subtitle>
 
         </v-list-item>
         <v-list-item to="/dashboard" prepend-icon="mdi-view-dashboard" title="Dashboard" />
@@ -89,6 +61,9 @@
         <router-view />
       </v-container>
     </v-main>
+    
+    <!-- BOTON DE CHATBOT -->
+    <ChatBotButton />
 
   </v-app>
 </template>
@@ -103,6 +78,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { computed } from 'vue'
 import NotificationsMenu from '@/components/notifications/NotificationsMenu.vue'
+import ChatBotButton from '@/components/chatbot/ChatBotButton.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -157,5 +133,5 @@ const props = defineProps({
   }
 })
 
-const drawer = ref(true)
+const drawer = ref(false)
 </script>
