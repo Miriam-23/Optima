@@ -23,7 +23,7 @@ const vuetify = createVuetify({
         colors: {
         background: '#ffffff',
         surface: '#f0f1f7',
-        primary: '#0a0462',
+        primary: '#6962b7', //a39dfb
         secondary: '#aec794',
         accent: '#0dc2d3',
         success: '#09cd23',
@@ -38,7 +38,7 @@ const vuetify = createVuetify({
         colors: {
         background: '#010104',
         surface: '#101117',
-        primary: '#a39dfb',
+        primary: '#0a0462',
         secondary: '#526b38',
         accent: '#2ce1f2',
         success: '#5df064',

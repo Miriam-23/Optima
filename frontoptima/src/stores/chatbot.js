@@ -1,114 +1,224 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import chatbotService from '@/services/chatbot.service'
 
 export const useChatbotStore = defineStore('chatbot', () => {
 
+    /* ===========================
+       ESTADO
+    =========================== */
+
     const open = ref(false)
+    const minimized = ref(false)
+
     const loading = ref(false)
     const unread = ref(0)
-    const messages = ref([])
+
     const history = ref([])
-    const minimized = ref(false)
     const currentConversation = ref(null)
     const historyOpen = ref(false)
 
-    let id = 1
+    const error = ref(null)
+    const controller = ref(null)
 
-    async function sendMessage(text){
+    /* ===========================
+       MENSAJES DE LA CONVERSACIÓN ACTUAL
+    =========================== */
 
-        messages.value.push({
-            id:id++,
-            role:'user',
-            content:text,
-            createdAt:new Date()
-        })
-        
-        loading.value=true
-        
-        try{
-            await new Promise(resolve=>setTimeout(resolve,1500))
+    const messages = computed(() => {
 
-            messages.value.push({
-                id:id++,
-                role:'assistant',
-                content:'Esta es una respuesta simulada de Optima Assistant.',
-                createdAt:new Date()
-            })
-        }
-        finally{
-            loading.value=false
-        }
+        const conversation = history.value.find(
+            c => c.id === currentConversation.value
+        )
 
-    }
+        return conversation?.messages ?? []
 
-    function stopResponse(){
+    })
 
-        loading.value=false
-
-    }
+    /* ===========================
+       CHAT
+    =========================== */
 
     function toggle() {
+
         open.value = !open.value
 
         if (open.value) {
-        unread.value = 0
+            unread.value = 0
         }
-    }
 
-    function close() {
-        open.value = false
     }
 
     function openChat() {
+
         open.value = true
         unread.value = 0
+
+        if (!currentConversation.value) {
+            createConversation()
+        }
+
     }
 
+    function close() {
+
+        open.value = false
+
+    }
 
     function minimize() {
+
         minimized.value = !minimized.value
+
     }
 
-    function toggleHistory(){
+    /* ===========================
+       HISTORIAL
+    =========================== */
 
-    historyOpen.value = !historyOpen.value
+    function toggleHistory() {
 
-}
+        historyOpen.value = !historyOpen.value
 
-    function loadConversation(id){
-        const conversation = history.value.find(c => c.id === id)
-        if(!conversation) return
+    }
+
+    function createConversation(project = null) {
+
+        const conversation = {
+            id: Date.now(),
+            title: "Nueva conversación",
+            projectId: project?.id ?? null,
+            projectName: project?.nombre ?? "General",
+            createdAt: new Date(),
+            lastMessage: "",
+            messages: []
+        }
+
+        history.value.unshift(conversation)
         currentConversation.value = conversation.id
-        messages.value = [...conversation.messages]
+
     }
 
-    function saveConversation(){
-        if(messages.value.length === 0) return
+    function loadConversation(id) {
 
-        history.value.unshift({
-            id:Date.now(),
-            title:messages.value[0].content.substring(0,30),
-            date:new Date(),
-            messages:[...messages.value]
+        const exists = history.value.some(
+            c => c.id === id
+        )
+
+        if (!exists) return
+
+        currentConversation.value = id
+
+    }
+
+    /* ===========================
+       MENSAJES
+    =========================== */
+
+    async function sendMessage(text) {
+
+        if (loading.value) return
+
+        if (!text.trim()) return
+
+        let conversation = history.value.find(
+            c => c.id === currentConversation.value
+        )
+
+        if (!conversation) {
+
+            createConversation()
+
+            conversation = history.value.find(
+                c => c.id === currentConversation.value
+            )
+
+        }
+
+        conversation.messages.push({
+            id: Date.now(),
+            role: "user",
+            content: text,
+            createdAt: new Date()
         })
+        if (conversation.title === "Nueva conversación") {
+
+            conversation.title =
+                text.length > 35
+                    ? text.substring(0, 35) + "..."
+                    : text
+
+        }
+
+        conversation.lastMessage = text
+
+        loading.value = true
+        error.value = null
+
+        try {
+
+            const response = await chatbotService.sendMessage(text)
+
+            conversation.messages.push({
+                id: Date.now() + 1,
+                role: "assistant",
+                content: response.response,
+                createdAt: new Date()
+            })
+
+            conversation.lastMessage = response.response
+
+        }
+
+        catch (err) {
+
+            error.value = err
+
+            conversation.messages.push({
+                id: Date.now() + 2,
+                role: "assistant",
+                type: "error",
+                content: "No fue posible contactar con Optima Assistant.",
+                createdAt: new Date()
+            })
+
+        }
+
+        finally {
+            loading.value = false
+        }
+
+    }
+
+    function stopResponse() {
+
+        loading.value = false
+        controller.value?.abort?.()
 
     }
 
     return {
+        // Estado
         open,
+        minimized,
         loading,
         unread,
-        messages,
+        error,
+        controller,
+        // Conversaciones
         history,
+        historyOpen,
+        currentConversation,
+        messages,
+        // Acciones
         toggle,
-        close,
         openChat,
-        sendMessage,
-        stopResponse,
+        close,
+        minimize,
         toggleHistory,
+        createConversation,
         loadConversation,
-        saveConversation,
-        minimize
+        sendMessage,
+        stopResponse
     }
-
 })

@@ -14,7 +14,11 @@
 
         <!-- ================= HISTORIAL ================= -->
 
-        <ChatHistory />
+        <v-expand-transition>
+
+            <ChatHistory v-if="store.historyOpen" />
+
+        </v-expand-transition>
 
         <v-divider />
 

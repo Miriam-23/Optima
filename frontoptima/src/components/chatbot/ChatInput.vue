@@ -10,11 +10,13 @@
             rows="1"
             auto-grow
             max-rows="5"
+            counter
             hide-details
+            :disabled="store.loading"
             placeholder="Escribe un mensaje..."
             @keydown.enter.exact.prevent="send"
         />
-
+        
         <v-btn
             :icon="store.loading ? 'mdi-stop' : 'mdi-send'"
             :color="store.loading ? 'error' : 'primary'"

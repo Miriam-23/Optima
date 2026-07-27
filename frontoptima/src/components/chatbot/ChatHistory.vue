@@ -10,28 +10,14 @@
             <div class="d-flex align-center">
 
                 <v-icon class="mr-2">
-
-                    {{
-                    store.historyOpen
-                    ? 'mdi-chevron-down'
-                    : 'mdi-chevron-right'
-                    }}
-
+                    {{ store.historyOpen? 'mdi-chevron-down' : 'mdi-chevron-right' }}
                 </v-icon>
 
-                <span>
-
-                    Historial
-
-                </span>
+                <span>Historial</span>
 
             </div>
 
-            <span class="text-caption">
-
-            {{ store.history.length }}
-
-            </span>
+            <span class="text-caption">{{ store.history.length }}</span>
 
         </div>
 
@@ -58,15 +44,15 @@
                         </template>
 
                         <v-list-item-title>
-
-                            {{ conversation.title }}
-
+                            {{ conversation.projectName }}
                         </v-list-item-title>
 
                         <v-list-item-subtitle>
+                            {{ conversation.lastMessage }}
+                        </v-list-item-subtitle>
 
-                            {{ formatDate(conversation.date) }}
-
+                        <v-list-item-subtitle>
+                            {{ formatDate(conversation.createdAt) }}
                         </v-list-item-subtitle>
 
                     </v-list-item>
