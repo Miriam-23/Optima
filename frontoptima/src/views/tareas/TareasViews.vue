@@ -6,8 +6,8 @@
   <TaskBoard 
     :pendiente="pendiente"
     :progreso="progreso"
-    :bloqueado="bloqueado"
-    :hecho="hecho"
+    :en_revision="en_revision"
+    :completada="completada"
     @open="abrirDetalle"
     @edit="editar" 
     @delete="confirmarEliminar"
@@ -55,8 +55,8 @@ const abrirDetalle = async(task)=>{
 const {
   pendiente,
   progreso,
-  bloqueado,
-  hecho
+  en_revision,
+  completada
 } = storeToRefs(store)
 
 const { setFilters } = store

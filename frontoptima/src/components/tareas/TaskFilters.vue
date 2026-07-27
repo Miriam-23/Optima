@@ -98,11 +98,12 @@ onMounted(() => {
   proyectosStore.obtenerProyectos()
 })
 
-const estados=[
-  { id: 2, nombre: 'Por hacer' },
-  { id: 3, nombre: 'En progreso' },
-  { id: 4, nombre: 'En revision' },
-  { id: 1, nombre: 'Completado' }
+// Estados de la tarea en la BD
+const estados = [
+  { id: 1, nombre: 'Pendiente' },
+  { id: 2, nombre: 'En progreso' },
+  { id: 3, nombre: 'En revisión' },
+  { id: 4, nombre: 'Completada' }
 ]
 
 const prioridades = [
