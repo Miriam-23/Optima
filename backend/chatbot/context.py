@@ -61,7 +61,7 @@ def obtener_contexto_tareas(usuario) -> str:
         tarea = asignacion.tarea
         vencida = (
             tarea.fecha_limite < hoy and
-            tarea.estado.nombre != 'Hecho'
+            tarea.estado.nombre != 'Completada'
         )
         estado_label = f'{tarea.estado.nombre} (VENCIDA)' if vencida else tarea.estado.nombre
         lineas.append(

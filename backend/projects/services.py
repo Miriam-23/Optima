@@ -24,7 +24,7 @@ class DashboardService:
 
         # --- 1. AVANCE GENERAL DEL PROYECTO ---
         total_tareas = tareas.count()
-        tareas_completadas = tareas.filter(estado__nombre='Hecho').count()
+        tareas_completadas = tareas.filter(estado__nombre='Completada').count()
         avance_porcentaje = (
             round((tareas_completadas / total_tareas) * 100)
             if total_tareas > 0 else 0
@@ -32,14 +32,14 @@ class DashboardService:
 
         # --- 2. TAREAS PENDIENTES ---
         tareas_pendientes = tareas.exclude(
-            estado__nombre='Hecho'
+            estado__nombre='Completada'
         ).count()
 
         # --- 3. TAREAS VENCIDAS ---
         tareas_vencidas = tareas.filter(
             fecha_limite__lt=hoy
         ).exclude(
-            estado__nombre='Hecho'
+            estado__nombre='Completada'
         ).count()
 
         # --- 4. TAREAS EN RIESGO DE RETRASO ---
@@ -47,7 +47,7 @@ class DashboardService:
             fecha_limite__gte=hoy,
             fecha_limite__lte=en_3_dias
         ).exclude(
-            estado__nombre='Hecho'
+            estado__nombre='Completada'
         ).count()
 
         # --- 5. DISTRIBUCIÓN DE TAREAS POR ESTADO ---
@@ -68,13 +68,13 @@ class DashboardService:
 
             total_miembro = tareas_miembro.count()
             completadas_miembro = tareas_miembro.filter(
-                estado__nombre='Hecho'
+                estado__nombre='Completada'
             ).count()
 
             vencidas_miembro = tareas_miembro.filter(
                 fecha_limite__lt=hoy
             ).exclude(
-                estado__nombre='Hecho'
+                estado__nombre='Completada'
             ).count()
 
             esfuerzo_total = sum(
