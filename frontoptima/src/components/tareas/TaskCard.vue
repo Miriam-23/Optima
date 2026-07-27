@@ -131,13 +131,15 @@ const responsableImagen = computed(() => responsable.value?.imagen || responsabl
   transition: transform .18s ease, box-shadow .18s ease;
   border-radius: 10px;
   padding: 12px;
-  box-shadow: 0 6px 18px rgba(15,23,42,0.04);
-  border-left: 4px solid rgba(0,0,0,0.04);
+  box-shadow: 0 6px 18px rgba(var(--v-theme-on-surface), 0.04);
+  border-left: 4px solid rgba(var(--v-theme-primary), 0.12);
+  background: rgb(var(--v-theme-surface));
+  color: rgba(var(--v-theme-on-surface), 1);
 }
 
 .task-card:hover{
   transform: scale(1.02);
-  box-shadow: 0 18px 36px rgba(15,23,42,0.08);
+  box-shadow: 0 18px 36px rgba(var(--v-theme-on-surface), 0.08);
 }
 
 .task-title{
@@ -164,7 +166,7 @@ const responsableImagen = computed(() => responsable.value?.imagen || responsabl
 }
 
 .footer-left .text-caption{
-  color: rgba(15,23,42,0.6);
+  color: rgba(var(--v-theme-on-surface), 0.64);
 }
 
 .avatar-initials{
@@ -174,8 +176,8 @@ const responsableImagen = computed(() => responsable.value?.imagen || responsabl
   align-items:center;
   justify-content:center;
   font-weight:600;
-  color: #fff;
-  background: linear-gradient(135deg,#64748B,#94A3B8);
+  color: rgb(var(--v-theme-on-primary));
+  background: rgb(var(--v-theme-primary));
   border-radius: 50%;
   display:block;
   line-height:28px;

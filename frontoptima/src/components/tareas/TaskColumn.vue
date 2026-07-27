@@ -88,7 +88,7 @@ defineEmits([
 <style scoped>
 
 .task-column{
-  background: #F3F6F9;
+  background: rgb(var(--v-theme-surface));
   min-height: 75vh;
   display: flex;
   flex-direction: column;
@@ -112,7 +112,7 @@ defineEmits([
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  border:2px dashed #CBD5E1;
+  border:2px dashed rgba(var(--v-theme-on-surface), 0.12);
   background: transparent;
   min-height:250px;
   width:100%;
