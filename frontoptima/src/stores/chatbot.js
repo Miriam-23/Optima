@@ -67,7 +67,6 @@ export const useChatbotStore = defineStore('chatbot', () => {
     }
 
     function minimize() {
-
         minimized.value = !minimized.value
 
     }

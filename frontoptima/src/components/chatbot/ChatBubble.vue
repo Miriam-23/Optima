@@ -13,9 +13,9 @@
             color="primary"
             class="mr-3 mt-1"
         >
-        <v-icon color="white">
-            mdi-robot-outline
-        </v-icon>
+            <v-icon color="white">
+                mdi-robot-outline
+            </v-icon>
         </v-avatar>
 
         <!-- Burbuja -->
@@ -91,8 +91,8 @@ const formattedTime = computed(() => {
 
 /* IA */
 .assistant-bubble{
-    background:white;
-    color:rgb(var(--v-theme-on-surface));
+    background:rgb(var(--v-theme-secondary));
+    color:white;
     border:1px solid rgba(0,0,0,.08);
     border-bottom-left-radius:6px;
 }

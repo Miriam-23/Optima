@@ -64,7 +64,7 @@ const store = useChatbotStore()
     display:flex;
     flex-direction:column;
     overflow:hidden;
-    background:white;
+    background:rgb(var(--v-theme-background));
     border:1px solid rgba(0,0,0,.05);
 }
 

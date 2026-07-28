@@ -5,15 +5,6 @@ import "vuetify/styles";
 // VUETIFY
 import { createVuetify } from "vuetify";
 
-// Recursos gráficos del sistema:
-// ✅ Logo de Optima.
-// ✅ Ilustración para el login.
-// ✅ Paleta de colores.
-// ✅ Tipografía.
-// ✅ Estilo de botones.
-// ✅ Tarjetas.
-// ✅ Iconografía.
-
 const vuetify = createVuetify({
   theme: {
     defaultTheme: 'light',
@@ -23,7 +14,7 @@ const vuetify = createVuetify({
         colors: {
         background: '#ffffff',
         surface: '#f0f1f7',
-        primary: '#6962b7', //a39dfb
+        primary: '#0a0462',
         secondary: '#aec794',
         accent: '#0dc2d3',
         success: '#09cd23',
@@ -38,7 +29,7 @@ const vuetify = createVuetify({
         colors: {
         background: '#010104',
         surface: '#101117',
-        primary: '#0a0462',
+        primary: '#6962b7',
         secondary: '#526b38',
         accent: '#2ce1f2',
         success: '#5df064',
