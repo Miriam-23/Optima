@@ -25,7 +25,6 @@ export const useUsuarioStore = defineStore('usuario', {
             try{
                 this.loading=true
                 const response = await authService.obtenerPerfil()
-                console.log("PERFIL API:", response.data)
                 this.usuario=response.data
 
             }catch(error){
@@ -42,7 +41,6 @@ export const useUsuarioStore = defineStore('usuario', {
         async actualizarPerfil(datos){
             try{
                 const response = await authService.actualizarPerfil(datos)
-                console.log("PERFIL API:", response.data)
                 this.usuario=response.data
 
             }catch(error){

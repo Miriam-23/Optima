@@ -26,7 +26,6 @@
         </v-chip>
 
       </v-col>
-
     </v-row>
 
     <v-divider class="my-3" />
@@ -63,8 +62,8 @@ const estadoColor = (estado) => {
     case 'Completado': return 'green'
     case 'Pausado': return 'red'
     case 'Planificacion': return 'blue'
-    default:
-      return 'grey'
+    default: return 'grey'
   }
 }
+
 </script>

@@ -87,18 +87,20 @@ const tareas = computed(() => {
 /* ICONOS (A prueba de balas: Inglés o Español) */
 const estadoIcon = (estado) => {
   const e = estado ? estado.toString().toLowerCase() : ''
-  if (e.includes('done') || e.includes('completado')) return 'mdi-check-circle'
+  if (e.includes('done') || e.includes('completada')) return 'mdi-check-circle-outline'
   if (e.includes('doing') || e.includes('progreso')) return 'mdi-progress-clock'
-  if (e.includes('todo') || e.includes('pendiente')) return 'mdi-circle-outline'
+  if (e.includes('todo') || e.includes('pendiente')) return 'mdi-alert-circle-outline'
+  if (e.includes('review') || e.includes('revisión')) return 'mdi-eye-outline'
   return 'mdi-help-circle'
 }
 
 /* COLORES (A prueba de balas: Inglés o Español) */
 const estadoColor = (estado) => {
   const e = estado ? estado.toString().toLowerCase() : ''
-  if (e.includes('done') || e.includes('completado')) return 'success' // Usamos variables de Vuetify
+  if (e.includes('done') || e.includes('completada')) return 'success' // Usamos variables de Vuetify
   if (e.includes('doing') || e.includes('progreso')) return 'warning'
   if (e.includes('todo') || e.includes('pendiente')) return 'error'
+  if (e.includes('review') || e.includes('revisión')) return 'info'
   return 'grey'
 }
 </script>

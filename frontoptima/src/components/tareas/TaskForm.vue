@@ -166,7 +166,6 @@ const cargarMiembros = async()=>{
 
     try{
         const res = await teamService.getByProject(form.proyecto)
-        console.log(res.data)
         miembros.value=res.data
     } catch(error){
         console.error(error)
@@ -221,11 +220,6 @@ watch(
 )
 
 const guardar = async()=>{
-    console.log(
-        "DATOS ENVIADOS JSON:",
-        JSON.stringify(form, null, 2)
-    )
-
     emit('save', { ...form })
 }
 

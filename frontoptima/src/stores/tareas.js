@@ -70,9 +70,9 @@ export const useTareasStore = defineStore('tareas', () => {
   )
 
   const completada = computed(() =>
-      filteredTasks.value.filter(
-          t => normalizarEstado(t) === "Completada"
-      )
+    filteredTasks.value.filter(
+        t => normalizarEstado(t) === "Completada"
+    )
   )
 
   //FUNCION ACTUALIZAR FILTRO
@@ -103,9 +103,6 @@ export const useTareasStore = defineStore('tareas', () => {
   async function obtenerTareas(params={}) {
     try{
       const res = await taskService.getAll(params)
-
-      console.log("Tareas recibidas:", res.data)
-      console.log("Cantidad:", res.data.length)
 
       tareas.value = Array.isArray(res.data) ? res.data : []
     } finally{
@@ -152,20 +149,15 @@ export const useTareasStore = defineStore('tareas', () => {
   }
 
   // Actualizar tarea
-async function actualizarTarea(id, data) {
+  async function actualizarTarea(id, data) {
 
     await taskService.patch(id, data)
 
     const actualizada = await taskService.getById(id)
 
-    console.log("TAREA DESPUÉS DEL GET:", actualizada.data)
-    console.log("RESPONSABLES:", actualizada.data.responsables)
-
     const index = tareas.value.findIndex(
-        t => t.id === id
+      t => t.id === id
     )
-
-    console.log("INDEX EN STORE:", index)
 
     if(index !== -1){
         tareas.value[index] = actualizada.data

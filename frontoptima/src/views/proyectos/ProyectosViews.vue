@@ -285,7 +285,7 @@ const confirmarEliminar = async (id) => {
     icon: 'warning',
     background: 'rgba(13, 194, 211,0.6)',
     color: '#fff',
-    backdrop: 'rgba(0,0,0,0.4)',
+    backdrop: 'rgba(0,0,0,0.8)',
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
     cancelButtonText: 'Cancelar',

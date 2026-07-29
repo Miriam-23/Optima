@@ -24,9 +24,6 @@ export const useProyectosStore = defineStore('proyectos', {
 
       try {
         const response = await projectService.getAll()
-
-        console.log(response.data)
-
         this.proyectos = response.data
 
       } catch (error) {
@@ -39,7 +36,6 @@ export const useProyectosStore = defineStore('proyectos', {
 
     async crearProyecto(data){
       const response = await projectService.create(data)
-      console.log("Proyecto creado:", response.data)
       this.proyectos.push(response.data)
     },
 

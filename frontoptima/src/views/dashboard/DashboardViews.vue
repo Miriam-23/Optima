@@ -121,7 +121,6 @@ const reportData = ref(null)
 onMounted(async () => {
   try {
     const response = await reportesService.getGlobales()
-    console.log(response.data)
     reportData.value = response.data
   } catch (error) {
     console.error('Error al conectar con la API de reportes:', error)
@@ -137,8 +136,8 @@ const statsCards = computed(() => {
   if (!reportData.value) return []
   const t = reportData.value.tarjetas
   return [
-    { title: 'Proyectos activos', value: t.proyectos_activos, icon: 'mdi-folder-outline', color: 'primary' },
-    { title: 'Total tareas', value: t.total_tareas, icon: 'mdi-format-list-checkbox', color: 'info' },
+    { title: 'Total Proyectos', value: t.proyectos_activos, icon: 'mdi-folder-outline', color: 'primary' },
+    { title: 'Total Tareas', value: t.total_tareas, icon: 'mdi-format-list-checkbox', color: 'info' },
     { title: 'Completadas', value: t.completadas, icon: 'mdi-check-circle-outline', color: 'success' },
     { title: 'En progreso', value: t.en_progreso, icon: 'mdi-progress-clock', color: 'warning' },
     { title: 'Pendientes', value: t.pendientes, icon: 'mdi-alert-circle-outline', color: 'error' }

@@ -17,7 +17,7 @@
   <TaskDialog v-model="dialog" :task="selectedTask" @save="guardarTarea" />
 
   <!-- VISUALIZAR DE LA TAREA SUS DETALLES -->
-  <TaskDetailDialog v-model="dialogDetalle" :task="tareaSeleccionada" />
+  <TaskDetailDialog v-model="dialogDetalle" :task="tareaSeleccionada" @comment-added="refreshTask" />
 
 </template>
 
@@ -44,9 +44,7 @@ const tareaSeleccionada = ref(null)
 const abrirDetalle = async(task)=>{
 
   await store.obtenerTarea(task.id)
-
   tareaSeleccionada.value = store.tareaActual
-
   dialogDetalle.value = true
 
 }
@@ -70,9 +68,7 @@ function nuevaTarea() {
 async function editar(task) {
 
   await store.obtenerTarea(task.id)
-
   selectedTask.value = store.tareaActual
-
   dialog.value = true
 }
 
@@ -95,15 +91,12 @@ const guardarTarea = async (data) => {
     } else {
 
       const tarea = await store.crearTarea(data)
-      console.log("TAREA CREADA:", tarea)
 
       if (data.responsable) {
-        console.log("Asignando usuario:", data.responsable)
         const res = await assignmentService.crearAsignacion({
           tarea: tarea.id,
           usuario: data.responsable
         })
-        console.log("RESPUESTA ASIGNACIÓN:", res.data)
       }
 
       // Linea añadida para actualizar los filtros después de crear una tarea
@@ -125,9 +118,6 @@ const guardarTarea = async (data) => {
   } catch (error) {
 
     console.error(error)
-
-    console.log("STATUS:", error.response?.status)
-    console.log("BODY:", error.response?.data)
 
     Swal.fire({
       icon: 'error',
@@ -175,6 +165,14 @@ const confirmarEliminar = async (task) => {
 
   }
 
+}
+
+const refreshTask = async () => {
+  await store.obtenerTareas({
+    proyecto: store.filters.proyecto,
+    estado: store.filters.estado,
+    prioridad: store.filters.prioridad
+  })
 }
 
 onMounted(async () => {

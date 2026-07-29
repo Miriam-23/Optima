@@ -161,7 +161,6 @@ const fetchDashboard = async () => {
 
   try {
     const res = await projectService.getDashboard(projectId)
-    console.log(res.data)
     projectDashboard.value = res.data
   } catch (err) {
     error.value = err.response?.data?.message || 'Error al cargar las métricas del proyecto'
@@ -209,10 +208,18 @@ const barOptions = computed(() => {
   if (!projectDashboard.value?.carga_por_miembro) return {}
   const c = theme.current.value.colors
   return {
-    chart: { toolbar: { show: false } },
+    chart: { 
+      toolbar: { show: false }, 
+      fontFamily: 'inherit',
+      foreColor: c['on-surface'] 
+    },
+    theme: {
+      mode: theme.global.name.value
+    },
     plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } },
     xaxis: { categories: projectDashboard.value.carga_por_miembro.map(m => m.nombre) },
     colors: [c.primary, c.success, c.error],
+    grid: { borderColor: `${c['on-surface']}1A`, strokeDashArray: 4 },
     dataLabels: { enabled: false },
     legend: { position: 'top' }
   }
@@ -235,7 +242,14 @@ const effortOptions = computed(() => {
   if (!projectDashboard.value?.carga_por_miembro) return {}
   const c = theme.current.value.colors
   return {
-    chart: { toolbar: { show: false } },
+    chart: { 
+      toolbar: { show: false },
+      fontFamily: 'inherit',
+      foreColor: c['on-surface'] 
+    },
+    theme: {
+      mode: theme.global.name.value
+    },
     plotOptions: {
       bar: { horizontal: true, borderRadius: 4, barHeight: '55%', distributed: true }
     },
@@ -244,6 +258,7 @@ const effortOptions = computed(() => {
       title: { text: 'Horas' }
     },
     colors: [c.primary, c.info, c.success, c.warning, c.error, c.secondary],
+    grid: { borderColor: `${c['on-surface']}1A`, strokeDashArray: 4 },
     dataLabels: {
       enabled: true,
       formatter: val => `${val}h`,
@@ -278,9 +293,16 @@ const healthSeries = computed(() => {
 const healthOptions = computed(() => {
   const c = theme.current.value.colors
   return {
-    chart: { toolbar: { show: false } },
+    chart: { 
+      toolbar: { show: false },
+      fontFamily: 'inherit',
+      foreColor: c['on-surface'] 
+    },
     labels: ['Avance general', 'Salud (sin riesgo)'],
     colors: [c.primary, c.success],
+    theme: {
+      mode: theme.global.name.value
+    },
     plotOptions: {
       radialBar: {
         hollow: { size: '40%' },
@@ -301,6 +323,7 @@ const healthOptions = computed(() => {
         }
       }
     },
+    grid: { borderColor: `${c['on-surface']}1A`, strokeDashArray: 4 },
     legend: { show: true, position: 'bottom' }
   }
 })

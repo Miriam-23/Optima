@@ -5,7 +5,9 @@
     <v-app-bar color="primary" elevation="2">
       <!-- BOTON DRAWER -->
       <v-app-bar-nav-icon @click="drawer = !drawer" />
-        <v-img :src="logo_dark" max-height="80" max-width="100" contain />
+      <v-img :src="icono_dark" max-height="40" max-width="40" contain />
+      <span class="logo-text">OPTIMA</span>
+
       <v-spacer />
 
       <!-- BOTON DE NOTIFICCIONES -->
@@ -69,7 +71,7 @@
 </template>
 
 <script setup>
-import logo_dark from '@/assets/images/logo_dark.png'
+import icono_dark from '@/assets/icons/icono_dark.png'
 import Swal from 'sweetalert2'
 import { ref } from 'vue'
 import { useTheme } from 'vuetify'
@@ -135,3 +137,13 @@ const props = defineProps({
 
 const drawer = ref(false)
 </script>
+
+<style scoped>
+.logo-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: white; /* Cambia a black si tu AppBar es clara */
+  letter-spacing: 1px;
+}
+</style>

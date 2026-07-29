@@ -35,7 +35,6 @@ export const useAuthStore = defineStore('auth', {
           username,
           password,
         })
-        console.log(res.data)
 
         this.access = res.data.access
         this.refresh = res.data.refresh

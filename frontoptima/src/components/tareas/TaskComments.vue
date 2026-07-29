@@ -125,6 +125,7 @@ const agregarComentario = async()=>{
 
         nuevoComentario.value=''
         await cargarComentarios()
+        emit('comment-added')
     } catch(error){
         console.error(
             'Error creando comentario',
@@ -132,7 +133,7 @@ const agregarComentario = async()=>{
         )
     } finally{
         loading.value=false
-  }
+    }
 }
 
 // ================================
@@ -142,6 +143,7 @@ const eliminarComentario = async(id)=>{
     try{
         await commentService.delete(id)
         await cargarComentarios()
+        emit('comment-added')
     } catch(error){
 
         console.error(
@@ -161,6 +163,10 @@ const formatDate=(date)=>{
   return new Date(date)
     .toLocaleString('es-MX')
 }
+
+const emit = defineEmits([
+  'comment-added'
+])
 
 // cargar cuando inicia
 onMounted(()=>{

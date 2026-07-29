@@ -4,8 +4,8 @@
     elevation="3"
     rounded="small"
     draggable="true"
-    @click="$emit('open', task)"
     @dragstart="$emit('drag-start', task)"
+
   >
     <!-- CABECERA -->
     <div class="d-flex justify-space-between align-center mb-3">
@@ -115,7 +115,8 @@ const emit = defineEmits([
   'open',
   'edit',
   'delete',
-  'drag-start'
+  'drag-start',
+  'comment-added'
 ])
 
 const priority = computed(() => {

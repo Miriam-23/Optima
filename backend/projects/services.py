@@ -115,6 +115,7 @@ class DashboardService:
             # Información general del proyecto
             'proyecto_id': proyecto.id,
             'nombre': proyecto.nombre,
+            'descripcion': proyecto.descripcion,
             'estado_general': proyecto.estado_general,
             'fecha_inicio': proyecto.fecha_inicio,
             'fecha_fin': proyecto.fecha_fin,

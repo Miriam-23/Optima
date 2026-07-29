@@ -143,7 +143,7 @@
                 </v-chip>
 
                 <!-- COMENTARIOS -->
-                <TaskComments class="mt-8" :task-id="task.id" />
+                <TaskComments class="mt-8" :task-id="task.id" @comment-added="commentAdded" />
 
             </v-card-text>
         </v-card>
@@ -170,7 +170,14 @@ const props = defineProps({
 
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits([
+    'update:modelValue',
+    'comment-added'
+])
+
+const commentAdded = () => {
+  emit('comment-added')
+}
 
 const dialog = computed({
     get(){return props.modelValue},
