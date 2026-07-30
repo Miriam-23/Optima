@@ -8,7 +8,7 @@
   >
 
     <!-- Header -->
-    <div class="d-flex justify-space-between align-center mb-4">
+    <div class="column-header d-flex justify-space-between align-center mb-4">
 
       <div class="d-flex align-center">
 
@@ -16,46 +16,48 @@
           {{ icon }}
         </v-icon>
 
-        <span class="text-h6">
+        <span class="text-h6 column-title">
           {{ title }}
         </span>
 
       </div>
 
-      <v-chip size="small" color="primary">
+      <v-chip size="small" color="primary" class="count-chip">
         {{ tasks.length }}
       </v-chip>
 
     </div>
 
-    <!-- Cards -->
+    <!-- Cards container (scrollable) -->
+    <div class="cards-wrapper">
 
-    <TaskCard
-      v-for="task in tasks"
-      :key="task.id"
-      :task="task"
-      class="mb-3"
-      @open="$emit('open', $event)"
-      @edit="$emit('edit', $event)"
-      @delete="$emit('delete', $event)"
-      @drag-start="$emit('drag-start', $event)"
-    />
+      <TaskCard
+        v-for="task in tasks"
+        :key="task.id"
+        :task="task"
+        class="mb-3"
+        @open="$emit('open', $event)"
+        @edit="$emit('edit', $event)"
+        @delete="$emit('delete', $event)"
+        @drag-start="$emit('drag-start', $event)"
+      />
 
-    <!-- Sin tareas -->
+      <v-sheet
+        v-if="tasks.length === 0"
+        class="empty-column pa-8"
+        rounded="lg"
+      >
+        <v-icon size="50" color="grey-lighten-1">
+          mdi-clipboard-text-outline
+        </v-icon>
 
-    <v-sheet
-      v-if="tasks.length === 0"
-      class="empty-column pa-8"
-      rounded="lg"
-    >
-      <v-icon size="50" color="grey-lighten-1">
-        mdi-clipboard-text-outline
-      </v-icon>
+        <div class="mt-3 text-medium-emphasis">
+          No hay tareas
+        </div>
+      </v-sheet>
 
-      <div class="mt-3 text-medium-emphasis">
-        No hay tareas
-      </div>
-    </v-sheet>
+    </div>
+
   </v-card>
 </template>
 
@@ -86,18 +88,34 @@ defineEmits([
 <style scoped>
 
 .task-column{
-  background: 'surface';
-  min-height:650px;
+  background: rgb(var(--v-theme-surface));
+  min-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+.column-header{
+  flex: 0 0 auto;
+  padding-bottom: 4px;
+}
+
+.cards-wrapper{
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Keep empty column styling */
 .empty-column{
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  border:2px dashed #CBD5E1;
-  background:'surface';
+  border:2px dashed rgba(var(--v-theme-on-surface), 0.12);
+  background: transparent;
   min-height:250px;
+  width:100%;
 }
 
 </style>

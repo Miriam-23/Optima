@@ -2,16 +2,42 @@
   <!-- ENCABEZADO PARA FILTRAR -->
   <TaskFilters @new-task="nuevaTarea" @update:filters="setFilters" />
 
-  <!-- KANBAN -->
-  <TaskBoard 
-    :pendiente="pendiente"
-    :progreso="progreso"
-    :en_revision="en_revision"
-    :completada="completada"
-    @open="abrirDetalle"
-    @edit="editar" 
-    @delete="confirmarEliminar"
-  />
+  <!-- VISTA: Selector Kanban / Lista -->
+  <div class="view-selector mb-4 d-flex">
+    <v-btn
+      :variant="viewMode === 'kanban' ? 'tonal' : 'text'"
+      size="small"
+      class="mr-2"
+      @click="viewMode = 'kanban'"
+    >
+      Kanban
+    </v-btn>
+
+    <v-btn
+      :variant="viewMode === 'list' ? 'tonal' : 'text'"
+      size="small"
+      @click="viewMode = 'list'"
+    >
+      Lista
+    </v-btn>
+  </div>
+
+  <!-- VISTAS -->
+  <div v-if="viewMode === 'kanban'">
+    <TaskBoard 
+      :pendiente="pendiente"
+      :progreso="progreso"
+      :en_revision="en_revision"
+      :completada="completada"
+      @open="abrirDetalle"
+      @edit="editar" 
+      @delete="confirmarEliminar"
+    />
+  </div>
+
+  <div v-else>
+    <TaskListView :tasks="filteredTasks" @open="abrirDetalle" />
+  </div>
 
   <!-- DIALOGO PARA EDITAR UNA TAREA -->
   <TaskDialog v-model="dialog" :task="selectedTask" @save="guardarTarea" />
@@ -28,6 +54,7 @@ import { storeToRefs } from 'pinia'
 import { useTareasStore } from '@/stores/tareas'
 import TaskDialog from '@/components/tareas/TaskDialog.vue'
 import TaskBoard from '@/components/tareas/TaskBoard.vue'
+import TaskListView from '@/components/tareas/TaskListView.vue'
 import TaskFilters from '@/components/tareas/TaskFilters.vue'
 import TaskDetailDialog from '@/components/tareas/TaskDetailsDialog.vue'
 import assignmentService from '@/services/assignment.service'
@@ -54,8 +81,11 @@ const {
   pendiente,
   progreso,
   en_revision,
-  completada
+  completada,
+  filteredTasks
 } = storeToRefs(store)
+
+const viewMode = ref('kanban')
 
 const { setFilters } = store
 
