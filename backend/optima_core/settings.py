@@ -165,8 +165,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-FRONTEND_URL = os.getenv('FRONTEND_URL')
-BACKEND_URL = os.getenv('BACKEND_URL')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:8000').rstrip('/')
 
 CORS_ALLOWED_ORIGINS = []
 if FRONTEND_URL:
@@ -178,14 +178,58 @@ if BACKEND_URL:
 if FRONTEND_URL:
     CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
 
-# Configuración para enviar correo
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = f'Optima <{os.getenv("EMAIL_HOST_USER")}>'
+# ---------------------------------------------------------------------------
+# Configuración de correo
+# ---------------------------------------------------------------------------
+# Railway bloquea SMTP saliente (puertos 25/465/587) en los planes Hobby/Trial,
+# por eso Gmail funciona en local pero hace timeout en producción.
+# EMAIL_PROVIDER decide cómo se envía:
+#   brevo   -> API HTTPS de Brevo      (recomendado en la nube)
+#   resend  -> API HTTPS de Resend     (requiere dominio verificado)
+#   smtp    -> SMTP clásico            (sirve en local o en Railway Pro)
+#   console -> imprime el correo en la consola/logs (default seguro)
+
+EMAIL_PROVIDER = os.getenv('EMAIL_PROVIDER', 'console').lower()
+
+BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+
+if EMAIL_PROVIDER == 'brevo':
+    EMAIL_BACKEND = 'notifications.email_backends.BrevoAPIBackend'
+elif EMAIL_PROVIDER == 'resend':
+    EMAIL_BACKEND = 'notifications.email_backends.ResendAPIBackend'
+elif EMAIL_PROVIDER == 'smtp':
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+    EMAIL_TIMEOUT = 20
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Con Brevo debe ser un remitente verificado en tu cuenta.
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Optima <no-reply@optima.local>')
+
+# ---------------------------------------------------------------------------
+# Logging: sin esto los errores de correo no aparecen en los logs de Railway
+# ---------------------------------------------------------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '[{levelname}] {name}: {message}', 'style': '{'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+    },
+    'root': {'handlers': ['console'], 'level': 'INFO'},
+    'loggers': {
+        'notifications': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'users': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+    },
+}
 
 # Configuración para usar el modelo de Groq
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')

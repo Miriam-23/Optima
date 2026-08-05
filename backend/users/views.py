@@ -16,7 +16,10 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from notifications.emails import enviar_correo_reset_password
+from notifications.emails import enviar_correo_reset_password, enviar_correo_verificacion
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ----- Vista para obtener y actualizar el perfil del usuario autenticado -----
@@ -64,6 +67,63 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]  # Este endpoint NO requiere token
     serializer_class = RegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        datos = serializer.data
+        correo_enviado = getattr(serializer, 'correo_enviado', True)
+        datos['correo_enviado'] = correo_enviado
+        datos['mensaje'] = (
+            'Cuenta creada. Revisa tu correo para activarla.'
+            if correo_enviado else
+            'Cuenta creada, pero no pudimos enviar el correo de verificaci\u00f3n. '
+            'Solicita el reenv\u00edo desde la pantalla de inicio de sesi\u00f3n.'
+        )
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(datos, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# ----- Reenviar el correo de verificaci\u00f3n -----
+class ReenviarVerificacionView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        correo = request.data.get('email', '').strip().lower()
+
+        if not correo:
+            return Response(
+                {'error': 'El correo electr\u00f3nico es requerido.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        respuesta_generica = Response(
+            {'mensaje': 'Si esa cuenta existe y est\u00e1 pendiente, te reenviamos el enlace.'},
+            status=status.HTTP_200_OK
+        )
+
+        try:
+            usuario = User.objects.get(email__iexact=correo, is_active=False)
+        except User.DoesNotExist:
+            return respuesta_generica
+
+        # Regeneramos el token para reiniciar las 24 horas de vigencia.
+        TokenVerificacion.objects.filter(usuario=usuario).delete()
+        token = TokenVerificacion.objects.create(usuario=usuario)
+
+        try:
+            enviar_correo_verificacion(usuario, token.token)
+        except Exception:
+            logger.exception('No se pudo reenviar la verificaci\u00f3n a %s', correo)
+            return Response(
+                {'error': 'No pudimos enviar el correo en este momento. Intenta m\u00e1s tarde.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
+        return respuesta_generica
 
 # ----- Vista para iniciar sesión -----
 class LoginView(TokenObtainPairView):

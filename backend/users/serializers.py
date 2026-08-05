@@ -1,3 +1,6 @@
+import logging
+
+from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Rol  # Importamos también Rol ya que vive en esta app
@@ -5,6 +8,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import hashlib
 from .models import TokenVerificacion
 from notifications.emails import enviar_correo_verificacion
+
+logger = logging.getLogger(__name__)
 
 class UserSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
@@ -58,8 +63,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         # Crear token de verificación
         token = TokenVerificacion.objects.create(usuario=user)
-        # Enviar correo
-        enviar_correo_verificacion(user, token.token)
+
+        # Si el correo falla, el usuario queda registrado pero inactivo y sin
+        # poder re-registrarse (username/email ocupados). Guardamos la bandera
+        # para que la vista se lo diga y pueda usar /auth/reenviar-verificacion/.
+        try:
+            enviar_correo_verificacion(user, token.token)
+            self.correo_enviado = True
+        except Exception:
+            logger.exception(
+                'No se pudo enviar la verificación a %s. Enlace manual: %s',
+                user.email, f'{settings.FRONTEND_URL}/verificar/{token.token}',
+            )
+            self.correo_enviado = False
+
         return user
     
 class LoginSerializer(TokenObtainPairSerializer):
