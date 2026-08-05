@@ -140,7 +140,7 @@ const verificarCuenta = async () => {
 
   try {
 
-    const response = await api.get(`/api/auth/verificar/${token}/`)
+    const response = await api.get(`/auth/verificar/${token}/`)
 
     estado.value = 'success'
     mensaje.value = response.data.mensaje

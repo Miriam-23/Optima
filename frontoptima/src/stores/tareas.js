@@ -59,13 +59,13 @@ export const useTareasStore = defineStore('tareas', () => {
 
   const progreso = computed(() =>
       filteredTasks.value.filter(
-          t => normalizarEstado(t) === "En progreso"
+          t => normalizarEstado(t) === "En Progreso"
       )
   )
 
   const en_revision = computed(() =>
       filteredTasks.value.filter(
-          t => normalizarEstado(t) === "En revisión"
+          t => normalizarEstado(t) === "En Revisión"
       )
   )
 
@@ -103,6 +103,8 @@ export const useTareasStore = defineStore('tareas', () => {
   async function obtenerTareas(params={}) {
     try{
       const res = await taskService.getAll(params)
+
+      console.log(res.data)
 
       tareas.value = Array.isArray(res.data) ? res.data : []
     } finally{
