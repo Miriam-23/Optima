@@ -1,8 +1,12 @@
 import axios from 'axios'
 
+// La URL del backend viene de la variable de entorno VITE_API_URL.
+// En local sale de frontoptima/.env; en Vercel se define en
+// Settings > Environment Variables. El fallback es solo para desarrollo.
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+
 const api = axios.create({
-  //baseURL: 'http://localhost:8000/api', //Cambia a tu backend real
-  baseURL: 'https://optima-production.up.railway.app/api'
+  baseURL,
 })
 
 // Interceptor para token automático
