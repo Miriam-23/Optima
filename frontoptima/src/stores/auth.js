@@ -31,7 +31,7 @@ export const useAuthStore = defineStore('auth', {
 
     async login(username, password) {
       try {
-        const res = await api.post('/api/auth/login/', {
+        const res = await api.post('/auth/login/', {
           username,
           password,
         })
@@ -53,7 +53,7 @@ export const useAuthStore = defineStore('auth', {
     // Registro
      async register(data) {
       try {
-        const response = await api.post('/api/auth/register/', {
+        const response = await api.post('/auth/register/', {
           username: data.username,
           email: data.email,
           password: data.password
@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', {
     //CIERRE DE SESION
     async logout() {
       try {
-        await api.post('/api/auth/logout/', {
+        await api.post('/auth/logout/', {
           refresh: this.refresh
         })
       } catch (error) {

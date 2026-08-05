@@ -4,37 +4,37 @@ export default {
 
   // Obtener todas las tareas
   getAll(params = {}) {
-    return api.get('/api/tasks/', { params })
+    return api.get('/tasks/', { params })
   },
 
   // Obtener las tareas de un proyecto
   getByProject(projectId) {
-    return api.get(`/api/tasks/?project=${projectId}`)
+    return api.get(`/tasks/?project=${projectId}`)
   },
 
   // Obtener una tarea
   getById(id) {
-    return api.get(`/api/tasks/${id}/`)
+    return api.get(`/tasks/${id}/`)
   },
 
   // Crear tarea
   create(data) {
-    return api.post('/api/tasks/', data)
+    return api.post('tasks/', data)
   },
 
   // Actualizar completamente
   update(id, data) {
-    return api.put(`/api/tasks/${id}/`, data)
+    return api.put(`/tasks/${id}/`, data)
   },
 
   // Actualizar parcialmente
   patch(id, data) {
-    return api.patch(`/api/tasks/${id}/`, data)
+    return api.patch(`/tasks/${id}/`, data)
   },
 
   // Eliminar
   remove(id) {
-    return api.delete(`/api/tasks/${id}/`)
+    return api.delete(`/tasks/${id}/`)
   }
 
 }

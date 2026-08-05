@@ -116,11 +116,14 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from 'vuetify'
 import logoLight from '@/assets/images/logo_ligth.png'
 import Swal from 'sweetalert2'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const theme = useTheme()
+const isDark = theme.global.current.value.dark
 const loading = ref(false)
 
 const name = ref('')
@@ -137,8 +140,9 @@ const register = async () => {
       title: 'Error',
       text: 'Completa todos los campos',
       icon: 'error',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       timer: 1500,
       showConfirmButton: false
     })
@@ -152,8 +156,9 @@ const register = async () => {
       title: 'Error',
       text: 'La contraseña debe tener mínimo 8 caracteres',
       icon: 'error',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       timer: 1500,
       showConfirmButton: false
     })
@@ -167,8 +172,9 @@ const register = async () => {
       title: 'Error',
       text: 'Las contraseñas no coinciden',
       icon: 'error',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       timer: 1500,
       showConfirmButton: false
     })
@@ -190,9 +196,9 @@ const register = async () => {
       title: 'Éxito',
       text: 'Cuenta creada correctamente',
       icon: 'success',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: false,

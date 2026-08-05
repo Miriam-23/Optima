@@ -7,7 +7,7 @@ export default {
   // GET /api/comments/
   // ==========================================
   getAll(params = {}) {
-    return api.get('/api/comments/', { params })
+    return api.get('/comments/', { params })
   },
 
   // ==========================================
@@ -15,7 +15,7 @@ export default {
   // GET /api/comments/?tarea=5
   // ==========================================
   getByTask(taskId) {
-    return api.get('/api/comments/', {
+    return api.get('/comments/', {
       params: {
         tarea: taskId
       }
@@ -27,7 +27,7 @@ export default {
   // POST /api/comments/
   // ==========================================
   create(data) {
-    return api.post('/api/comments/', data)
+    return api.post('/comments/', data)
   },
 
   // ==========================================
@@ -35,7 +35,7 @@ export default {
   // DELETE /api/comments/{id}/
   // ==========================================
   delete(id) {
-    return api.delete(`/api/comments/${id}/`)
+    return api.delete(`/comments/${id}/`)
   }
 
 }

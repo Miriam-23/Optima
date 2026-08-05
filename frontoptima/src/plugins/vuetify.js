@@ -17,11 +17,12 @@ const vuetify = createVuetify({
         primary: '#0a0462',
         secondary: '#aec794',
         accent: '#0dc2d3',
+        bubble: '#9ff1f8',
         success: '#09cd23',
         warning: '#fa7500',
         error: '#d81717',
         info: '#0084ff',
-        efect: '#FFFFFF00'
+        efect: '#8e86ff'
       },
       },
       dark: {
@@ -32,6 +33,7 @@ const vuetify = createVuetify({
         primary: '#6962b7',
         secondary: '#526b38',
         accent: '#2ce1f2',
+        bubble: '#088d9a',
         success: '#5df064',
         warning: '#FFB74D',
         error: '#D50000',

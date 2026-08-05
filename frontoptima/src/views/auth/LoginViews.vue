@@ -72,9 +72,12 @@
             </v-btn>
           </RouterLink>
 
-          <v-btn variant="text" color="surface">
+          <RouterLink
+            :to="{ name: 'forgot-password' }"
+            class="text-white text-decoration-none"
+          >
             ¿Olvidaste tu contraseña?
-          </v-btn>
+          </RouterLink>
         </v-card>
       </v-col>
 
@@ -86,16 +89,18 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from 'vuetify'
 import logoLight from '@/assets/images/logo_ligth.png'
 import Swal from 'sweetalert2'
 
 const router = useRouter()
 const auth = useAuthStore()
-
 const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
+const theme = useTheme()
+const isDark = theme.global.current.value.dark
 
 const login = async () => {
   loading.value = true
@@ -109,9 +114,9 @@ const login = async () => {
       title: 'Exito!',
       text: 'Inicio de Sesión exitoso',
       icon: 'success',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: false,
@@ -125,9 +130,9 @@ const login = async () => {
       title: 'Error!',
       text: 'Credenciales incorrectas',
       icon: 'error',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: false,

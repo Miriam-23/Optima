@@ -12,16 +12,6 @@
 
         <v-divider />
 
-        <!-- ================= HISTORIAL ================= -->
-
-        <v-expand-transition>
-
-            <ChatHistory v-if="store.historyOpen" />
-
-        </v-expand-transition>
-
-        <v-divider />
-
         <!-- ================= MENSAJES ================= -->
 
         <div class="messages-wrapper">
@@ -45,7 +35,6 @@
 
 import { useChatbotStore } from '@/stores/chatbot'
 import ChatHeader from './ChatHeader.vue'
-import ChatHistory from './ChatHistory.vue'
 import ChatMessages from './ChatMessages.vue'
 import ChatLoader from './ChatLoader.vue'
 import ChatInput from './ChatInput.vue'
@@ -64,7 +53,7 @@ const store = useChatbotStore()
     display:flex;
     flex-direction:column;
     overflow:hidden;
-    background:rgb(var(--v-theme-background));
+    background:rgb(var(--v-theme-surface));
     border:1px solid rgba(0,0,0,.05);
 }
 
@@ -74,7 +63,7 @@ const store = useChatbotStore()
     overflow:hidden;
     display:flex;
     flex-direction:column;
-    background:#fafafa;
+    background:rgb(var(--v-theme-surface));
 }
 
 @media (max-width:600px){

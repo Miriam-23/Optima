@@ -56,7 +56,7 @@ function stop(){
     align-items:flex-end;
     gap:12px;
     padding:16px;
-    background:white;
+    background: rgb(var(--v-theme-surface));
 }
 
 .input{

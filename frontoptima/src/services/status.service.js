@@ -7,7 +7,7 @@ export default {
   // GET /api/statuses/
   // ==========================================
   getAll() {
-    return api.get('/api/statuses/')
+    return api.get('/statuses/')
   },
 
   // ==========================================
@@ -15,7 +15,7 @@ export default {
   // GET /api/statuses/{id}/
   // ==========================================
   getById(id) {
-    return api.get(`/api/statuses/${id}/`)
+    return api.get(`/statuses/${id}/`)
   }
 
 }

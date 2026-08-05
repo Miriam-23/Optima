@@ -3,11 +3,11 @@ import api from './api'
 export default {
 
     getAll() {
-        return api.get('/api/roles/')
+        return api.get('/roles/')
     },
 
     getById(id) {
-        return api.get(`/api/roles/${id}/`)
+        return api.get(`/roles/${id}/`)
     }
 
 }

@@ -11,6 +11,8 @@ import DashboardView from '@/views/dashboard/DashboardViews.vue'
 import ProyectosView from '@/views/proyectos/ProyectosViews.vue'
 import TareasView from '@/views/tareas/TareasViews.vue'
 import PerfilView from '@/views/auth/PerfilViews.vue'
+import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
+import ResetPasswordView from '@/views/auth/ResetPasswordView.vue'
 import ProyectoDetalleView from '@/views/proyectos/ProyectoDetailsViews.vue'
 
 const routes = [
@@ -46,6 +48,22 @@ const routes = [
           public: true
         }
       },
+      {
+        path: "forgot-password",
+        name: "forgot-password",
+        component: ForgotPasswordView,
+        meta: {
+          public: true
+        }
+      },
+      {
+        path: "reset-password",
+        name: "reset-password",
+        component: ResetPasswordView,
+        meta: {
+          public: true
+        }
+      },
     ],
   },
   {
@@ -56,6 +74,9 @@ const routes = [
         path: 'dashboard',
         name:'dasboard',
         component: DashboardView,
+        meta: {
+          public: false
+        }
       },
       {
         path: 'proyectos',
@@ -77,7 +98,7 @@ const routes = [
         path: 'perfil',
         name:'perfil',
         component: PerfilView,
-      },
+      }
     ],
   },
 ]

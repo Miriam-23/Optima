@@ -11,7 +11,7 @@ class ChatbotService {
 
         }
 
-        const { data } = await api.post("api/chat/", payload)
+        const { data } = await api.post("/chat/", payload)
         return data
 
     }

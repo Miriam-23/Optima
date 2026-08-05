@@ -23,6 +23,7 @@
         <div
             class="bubble"
             :class="isUser ? 'user-bubble' : 'assistant-bubble'"
+            :style="{ color: textColor }"
         >
 
             <div class="message">
@@ -41,6 +42,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useTheme } from 'vuetify'
+
+const theme = useTheme()
 
 const props = defineProps({
 
@@ -63,6 +67,10 @@ const formattedTime = computed(() => {
 
 })
 
+const textColor = computed(() =>
+  theme.global.current.value.dark ? 'white' : 'black'
+)
+
 </script>
 
 <style scoped>
@@ -84,7 +92,7 @@ const formattedTime = computed(() => {
 
 /* Usuario */
 .user-bubble{
-    background:rgb(var(--v-theme-primary));
+    background:rgb(var(--v-theme-bubble));
     color:white;
     border-bottom-right-radius:6px;
 }
@@ -99,6 +107,7 @@ const formattedTime = computed(() => {
 
 /* Texto */
 .message{
+
     line-height:1.55;
     font-size:.95rem;
 }
