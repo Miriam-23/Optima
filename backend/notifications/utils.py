@@ -1,11 +1,24 @@
+import logging
+from threading import Thread
+
 from .models import Notificacion
 from projects.models import ProyectoUsuario
 from .emails import enviar_correo_notificacion
-from threading import Thread
+
+logger = logging.getLogger(__name__)
+
+
+def _worker_correo(usuario, tipo, mensaje):
+    # Sin este try/except, una excepción dentro del hilo se pierde en silencio.
+    try:
+        enviar_correo_notificacion(usuario, tipo, mensaje)
+    except Exception:
+        logger.exception('Falló la notificación por correo para %s', usuario)
+
 
 def enviar_correo_async(usuario, tipo, mensaje):
     Thread(
-        target=enviar_correo_notificacion,
+        target=_worker_correo,
         args=(usuario, tipo, mensaje),
         daemon=True
     ).start()
