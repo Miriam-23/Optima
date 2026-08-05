@@ -163,23 +163,20 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 BACKEND_URL = os.getenv('BACKEND_URL')
 
-CORS_ALLOWED_ORIGINS = [
-    FRONTEND_URL,
-] if FRONTEND_URL else []
+CORS_ALLOWED_ORIGINS = []
+if FRONTEND_URL:
+    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
-CSRF_TRUSTED_ORIGINS = [
-    FRONTEND_URL,
-] if FRONTEND_URL else []
-
-# Durante desarrollo, permitimos el origen de Vue
-CORS_ALLOWED_ORIGINS = [
-    FRONTEND_URL,  # Vite (Vue)
-    # 'https://b5jl97j5-5173.usw3.devtunnels.ms', 
-    # 'https://b5jl97j5-8000.usw3.devtunnels.ms'
-]
+CSRF_TRUSTED_ORIGINS = []
+if BACKEND_URL:
+    CSRF_TRUSTED_ORIGINS.append(BACKEND_URL)
+if FRONTEND_URL:
+    CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
 
 # Configuración para enviar correo
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
