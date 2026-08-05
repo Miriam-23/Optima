@@ -23,12 +23,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-98d)haz-)8zue$djuy5(nuak#e#yr+@_a6#w-1t$2v4jtwl@g3'
+SECRET_KEY = os.getenv('SECRET_KEY', 'clave-temporal-desarrollo')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '.railway.app',
+    'localhost',
+    '127.0.0.1',
+]
 
 
 # Application definition
@@ -156,9 +161,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 BACKEND_URL = os.getenv('BACKEND_URL')
+
+CORS_ALLOWED_ORIGINS = [
+    FRONTEND_URL,
+] if FRONTEND_URL else []
+
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_URL,
+] if FRONTEND_URL else []
 
 # Durante desarrollo, permitimos el origen de Vue
 CORS_ALLOWED_ORIGINS = [
