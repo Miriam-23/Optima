@@ -74,7 +74,10 @@ import teamService from '@/services/team.service'
 import DialogAsignarMiembro from './DialogAsignarMiembro.vue'
 import { useAuthStore } from '@/stores/auth'
 import Swal from 'sweetalert2'
+import { useTheme } from 'vuetify'
 
+const theme = useTheme()
+const isDark = theme.global.current.value.dark
 const authStore = useAuthStore()
 
 // 1. Recibimos la data ya masticada desde Django
@@ -116,16 +119,14 @@ const eliminar = async (idAsignacion) => {
     title: `¿Deseas eliminar a  <strong>${miembro?.nombre}</strong> del Proyecto?`,
     html: `Esta acción eliminará a <strong>${miembro?.nombre}</strong> del equipo.`,
     icon: 'warning',
-    background: 'rgba(13, 194, 211,0.6)',
-    color: '#fff',
-    backdrop: 'rgba(0,0,0,0.4)',
+    background: isDark ? "#1E1E1E" : "#FFFFFF",
+    color: isDark ? "#F5F5F5" : "#1F2937",
+    backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
     cancelButtonText: 'Cancelar',
-    confirmButtonColor: 'success',
-    cancelButtonColor: 'error',
-    confirmButtonColor: '#d32f2f', // Rojo
-    cancelButtonColor: '#1976D2',
+    confirmButtonColor: '#d32f2f',
+    cancelButtonColor: isDark ? "#526B38" : "#8e86ff",
     customClass: {
       popup: 'swal2-glass'
     }
@@ -140,9 +141,9 @@ const eliminar = async (idAsignacion) => {
       title: `<strong>${miembro?.nombre}</strong> eliminado.`,
       html: `<strong>${miembro?.nombre}</strong> ha sido removido del equipo.`,
       icon: 'success',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: false,
@@ -159,7 +160,12 @@ const eliminar = async (idAsignacion) => {
     Swal.fire({
       title: 'Error',
       text: 'No se pudo eliminar al miembro del equipo.',
-      icon: 'error'
+      icon: 'error',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
+      imer: 1500,
+      timerProgressBar: false
     })
   }
 }

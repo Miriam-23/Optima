@@ -178,11 +178,14 @@ import { computed, reactive, ref } from 'vue'
 import { useProyectosStore } from '@/stores/proyectos'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from 'vuetify'
 import teamService from '@/services/team.service'
 import Swal from 'sweetalert2'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const theme = useTheme()
+const isDark = theme.global.current.value.dark
 
 // VERIFICACION DE SI ES PROYECT MANAGER PARA EDITAR Y ELIMINAR UN PROYECTO
 // POR ELLO VEMOS LOS MIEMBROS DEL EQUIPO PARA HACER UNA COMPARACIÓN 
@@ -283,9 +286,9 @@ const confirmarEliminar = async (id) => {
     title: '¿Deseas eliminar este proyecto?',
     text: 'Esta acción no se puede deshacer.',
     icon: 'warning',
-    background: 'rgba(13, 194, 211,0.6)',
-    color: '#fff',
-    backdrop: 'rgba(0,0,0,0.8)',
+    background: isDark ? "#1E1E1E" : "#FFFFFF",
+    color: isDark ? "#F5F5F5" : "#1F2937",
+    backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
     cancelButtonText: 'Cancelar',
@@ -308,9 +311,9 @@ const confirmarEliminar = async (id) => {
       title: 'Proyecto eliminado',
       text: 'El proyecto se elimino correctamente.',
       icon: 'success',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: false,
@@ -325,9 +328,9 @@ const confirmarEliminar = async (id) => {
       title: 'Error',
       text: 'No se pudo eliminar el proyecto.',
       icon: 'error',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: false,

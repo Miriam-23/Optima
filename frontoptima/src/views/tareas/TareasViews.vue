@@ -52,6 +52,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useTareasStore } from '@/stores/tareas'
+import { useTheme } from 'vuetify'
 import TaskDialog from '@/components/tareas/TaskDialog.vue'
 import TaskBoard from '@/components/tareas/TaskBoard.vue'
 import TaskListView from '@/components/tareas/TaskListView.vue'
@@ -66,6 +67,8 @@ const dialog = ref(false)
 const dialogDetalle = ref(false)
 const selectedTask = ref(null)
 const tareaSeleccionada = ref(null)
+const theme = useTheme()
+const isDark = theme.global.current.value.dark
 
 // FUNCION PARA ABRIR EL DETALLE DE LA TAREA
 const abrirDetalle = async(task)=>{
@@ -114,6 +117,9 @@ const guardarTarea = async (data) => {
         icon: 'success',
         title: 'Tarea actualizada',
         text: 'La tarea se actualizó correctamente.',
+        background: isDark ? "#1E1E1E" : "#FFFFFF",
+        color: isDark ? "#F5F5F5" : "#1F2937",
+        backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
         timer: 1500,
         showConfirmButton: false
       })
@@ -136,6 +142,9 @@ const guardarTarea = async (data) => {
         icon: 'success',
         title: 'Tarea creada',
         text: 'La tarea se creó correctamente.',
+        background: isDark ? "#1E1E1E" : "#FFFFFF",
+        color: isDark ? "#F5F5F5" : "#1F2937",
+        backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
         timer: 1500,
         showConfirmButton: false
       })
@@ -153,6 +162,9 @@ const guardarTarea = async (data) => {
       icon: 'error',
       title: 'Error',
       text: 'No se pudo guardar la tarea.',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false
     })
 
@@ -166,6 +178,9 @@ const confirmarEliminar = async (task) => {
     title: '¿Eliminar tarea?',
     text: task.titulo,
     icon: 'warning',
+    background: isDark ? "#1E1E1E" : "#FFFFFF",
+    color: isDark ? "#F5F5F5" : "#1F2937",
+    backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
     cancelButtonText: 'Cancelar',
@@ -182,7 +197,10 @@ const confirmarEliminar = async (task) => {
       icon: 'success',
       title: 'Tarea eliminada',
       timer: 1200,
-      showConfirmButton: false
+      showConfirmButton: false,
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)"
     })
 
   } catch (error) {
@@ -190,7 +208,10 @@ const confirmarEliminar = async (task) => {
     Swal.fire({
       icon: 'error',
       title: 'No se pudo eliminar',
-      text: error.response?.data?.detail || 'Error del servidor'
+      text: error.response?.data?.detail || 'Error del servidor',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)"
     })
 
   }

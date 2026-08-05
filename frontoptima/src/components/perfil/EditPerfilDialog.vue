@@ -45,17 +45,6 @@ Actualiza tus datos personales
 />
 
 
-
-<v-text-field
-    v-model="form.email"
-    label="Correo electrónico"
-    prepend-inner-icon="mdi-email-outline"
-    variant="outlined"
-    class="mt-4"
-/>
-
-
-
 <v-alert
     v-if="error"
     type="error"

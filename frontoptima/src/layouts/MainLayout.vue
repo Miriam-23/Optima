@@ -82,6 +82,8 @@ import { computed } from 'vue'
 import NotificationsMenu from '@/components/notifications/NotificationsMenu.vue'
 import ChatBotButton from '@/components/chatbot/ChatBotButton.vue'
 
+const theme = useTheme()
+const isDark = theme.global.current.value.dark
 const authStore = useAuthStore()
 const router = useRouter()
 
@@ -104,9 +106,9 @@ const logout = async () => {
       icon: 'success',
       title: 'Sesión cerrada',
       text: 'Hasta pronto',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
-      backdrop: 'rgba(0,0,0,0.4)',
+      background: isDark ? "#1E1E1E" : "#FFFFFF",
+      color: isDark ? "#F5F5F5" : "#1F2937",
+      backdrop: isDark ? "rgba(0,0,0,.75)" : "rgba(0,0,0,.45)",
       showConfirmButton: false,
       timer: 1200,
       timerProgressBar: false,
@@ -119,11 +121,10 @@ const logout = async () => {
   }
 }
 
-const theme = useTheme()
-
-function toggleTheme() {
-  theme.global.name.value =
-    theme.global.name.value === 'light' ? 'dark' : 'light'
+const toggleTheme = () => {
+  theme.change(
+    theme.global.current.value.dark ? "light" : "dark"
+  )
 }
 
 const emit = defineEmits(['toggleDrawer'])
